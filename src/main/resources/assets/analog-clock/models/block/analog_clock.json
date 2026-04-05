@@ -1,0 +1,26 @@
+{
+	"format_version": "1.21.11",
+	"credit": "Made with Blockbench",
+	"textures": {
+		"particle": "analog-clock:block/clock_back",
+		"clock-back": "analog-clock:block/clock_back",
+		"clock-face": "analog-clock:block/clock_face",
+		"clock-frame": "analog-clock:block/clock_frame"
+	},
+	"elements": [
+		{
+			"name": "clock-base",
+			"from": [0, 0, 14],
+			"to": [16, 16, 16],
+			"rotation": {"angle": 0, "axis": "y", "origin": [8, 8, 8]},
+			"faces": {
+				"north": {"uv": [0, 0, 16, 16], "texture": "#clock-face"},
+				"east": {"uv": [4, 0, 6, 16], "texture": "#clock-frame"},
+				"south": {"uv": [0, 0, 16, 16], "texture": "#clock-back"},
+				"west": {"uv": [6, 0, 8, 16], "texture": "#clock-frame"},
+				"up": {"uv": [2, 16, 0, 0], "rotation": 90, "texture": "#clock-frame"},
+				"down": {"uv": [2, 16, 4, 0], "rotation": 270, "texture": "#clock-frame"}
+			}
+		}
+	]
+}
