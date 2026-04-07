@@ -18,6 +18,7 @@ public class AnalogClock implements ModInitializer {
   @Override
   public void onInitialize() {
     ModBlocks.initialize();
+    LOGGER.info("[{}] Analog Initialized!", MOD_ID);
   }
 
   public static ResourceLocation id(String path) {

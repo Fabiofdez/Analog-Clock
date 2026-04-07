@@ -11,6 +11,7 @@ import net.minecraft.world.item.Item;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.SoundType;
 import net.minecraft.world.level.block.state.BlockBehaviour;
+import net.minecraft.world.level.material.PushReaction;
 
 import java.util.function.Function;
 
@@ -22,13 +23,13 @@ public class ModBlocks {
           .of()
           .sound(SoundType.COPPER)
           .instabreak()
+          .pushReaction(PushReaction.DESTROY)
+          .noOcclusion()
   );
 
   private static Block register(String name, Function<BlockBehaviour.Properties, Block> blockFactory, BlockBehaviour.Properties settings) {
     ResourceKey<Block> blockKey = AnalogClock.blockKey(name);
-    Block block = blockFactory.apply(settings
-        .setId(blockKey)
-        .noOcclusion());
+    Block block = blockFactory.apply(settings.setId(blockKey));
 
     ResourceKey<Item> itemKey = AnalogClock.itemKey(name);
     BlockItem blockItem = new BlockItem(
@@ -45,6 +46,6 @@ public class ModBlocks {
   public static void initialize() {
     ItemGroupEvents
         .modifyEntriesEvent(CreativeModeTabs.TOOLS_AND_UTILITIES)
-        .register(itemGroup -> itemGroup.accept(ANALOG_CLOCK.asItem()));
+        .register((itemGroup) -> itemGroup.accept(ANALOG_CLOCK.asItem()));
   }
 }

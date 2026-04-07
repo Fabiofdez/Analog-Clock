@@ -1,6 +1,7 @@
 package fabiofdez.analogclock.block.state.properties;
 
 import net.minecraft.util.StringRepresentable;
+import org.jetbrains.annotations.NotNull;
 
 public enum Alignment implements StringRepresentable {
   FRONT("front"),
@@ -8,15 +9,15 @@ public enum Alignment implements StringRepresentable {
 
   private final String name;
 
-  Alignment(final String string2) {
-    this.name = string2;
+  Alignment(final String name) {
+    this.name = name;
   }
 
   public String toString() {
     return this.name;
   }
 
-  public String getSerializedName() {
+  public @NotNull String getSerializedName() {
     return this.name;
   }
 }

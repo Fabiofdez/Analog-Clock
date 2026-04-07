@@ -18,7 +18,7 @@ import net.minecraft.world.phys.Vec3;
 import org.joml.Matrix4f;
 
 public class AnalogClockFaceRenderer implements BlockEntityRenderer<AnalogClockFace> {
-  public AnalogClockFaceRenderer(BlockEntityRendererProvider.Context ctx) {
+  public AnalogClockFaceRenderer(BlockEntityRendererProvider.Context ignoredCtx) {
   }
 
   @Override
