@@ -3,7 +3,7 @@
 	"id": "analog-clock",
 	"version": "${version}",
 	"name": "Analog Clock",
-	"description": "A good old-fashioned analog clock for keeping track of your day",
+	"description": "A new way to tell time",
 	"authors": [
 		"Fabiofdez"
 	],
