@@ -3,104 +3,56 @@ package fabiofdez.analogclock.client.renderer;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.VertexConsumer;
 import com.mojang.math.Axis;
-import fabiofdez.analogclock.AnalogClock;
 import fabiofdez.analogclock.block.AnalogClockBlock;
 import fabiofdez.analogclock.block.state.properties.Alignment;
 import fabiofdez.analogclock.entity.AnalogClockFace;
 import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.RenderType;
-import net.minecraft.client.renderer.blockentity.BlockEntityRenderer;
 import net.minecraft.client.renderer.blockentity.BlockEntityRendererProvider;
 import net.minecraft.core.Direction;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.Vec3;
-import org.joml.Matrix4f;
 
-public class AnalogClockFaceRenderer implements BlockEntityRenderer<AnalogClockFace> {
+public class AnalogClockFaceRenderer extends AnimatedEntityRenderer<AnalogClockFace> {
+  private static final ResourceLocation HOUR_TEXTURE = getTexture("hour_hand");
+  private static final ResourceLocation MINUTE_TEXTURE = getTexture("minute_hand");
+
+  private static final double CLOCK_HAND_OFFSET = 0.1 / 16;
+
   public AnalogClockFaceRenderer(BlockEntityRendererProvider.Context ignoredCtx) {
   }
 
   @Override
-  public void render(AnalogClockFace entity, float tickProgress, PoseStack matrices, MultiBufferSource vertexConsumers, int light, int overlay, Vec3 cameraPos) {
-    int hourFrame = entity.getHourFrame();
-    int minuteFrame = entity.getMinuteFrame();
-
-    ResourceLocation HOUR_TEXTURE = AnalogClock.id(String.format("textures/block/hour_hand_%d.png", hourFrame));
-    ResourceLocation MINUTE_TEXTURE = AnalogClock.id(String.format("textures/block/minute_hand_%d.png", minuteFrame));
-
-    BlockState state = entity.getBlockState();
-    Direction facing = state.getValue(AnalogClockBlock.FACING);
-    boolean isFront = state.getValue(AnalogClockBlock.ALIGNMENT) == Alignment.FRONT;
-
-    Vec3 clockFaceCenter = new Vec3(0.5F, 0.5F, 0.5F);
-    if (isFront) {
-      Vec3 shiftForward = facing.getUnitVec3();
-      clockFaceCenter = clockFaceCenter.add(shiftForward.scale(0.5F + 0.02F));
-    } else {
-      facing = facing.getOpposite();
-      Vec3 shiftBack = facing.getUnitVec3();
-      clockFaceCenter = clockFaceCenter.add(shiftBack.scale(0.375F - 0.02F));
-    }
-
-    float rotation = switch (facing) {
-      case NORTH -> isFront ? 180F : 0F;
-      case SOUTH -> isFront ? 0F : 180F;
-      case WEST -> isFront ? 270F : 90F;
-      case EAST -> isFront ? 90F : 270F;
-      default -> 0f;
-    };
-
+  public void render(AnalogClockFace clockFace, float tickProgress, PoseStack matrices, MultiBufferSource vertexConsumers, int light, int overlay, Vec3 cameraPos) {
     matrices.pushPose();
 
-    matrices.translate(clockFaceCenter);
-    matrices.rotateAround(Axis.YP.rotationDegrees(rotation), 0F, 0F, 0F);
-
-    VertexConsumer hourBuffer = vertexConsumers.getBuffer(RenderType.entityCutoutNoCull(HOUR_TEXTURE));
-    VertexConsumer minuteBuffer = vertexConsumers.getBuffer(RenderType.entityCutoutNoCull(MINUTE_TEXTURE));
-
-    Matrix4f matrix = matrices
-        .last()
-        .pose();
-
-    drawQuad(hourBuffer, matrix, light, overlay);
-    drawQuad(minuteBuffer, matrix, light, overlay);
+    orientClockFace(matrices, clockFace.getBlockState());
+    drawClockHand(HOUR_TEXTURE, clockFace.getHourFrame(), matrices, vertexConsumers, light, overlay);
+    drawClockHand(MINUTE_TEXTURE, clockFace.getMinuteFrame(), matrices, vertexConsumers, light, overlay);
 
     matrices.popPose();
   }
 
-  private void drawQuad(VertexConsumer buffer, Matrix4f matrix, int light, int overlay) {
+  private static void orientClockFace(PoseStack matrices, BlockState state) {
+    boolean isFront = state.getValue(AnalogClockBlock.ALIGNMENT) == Alignment.FRONT;
+    Direction facingDirection = state.getValue(AnalogClockBlock.FACING);
+    Direction shiftDirection = isFront ? facingDirection : facingDirection.getOpposite();
+    float rotation = getModelRotation(facingDirection);
 
-    buffer
-        .addVertex(matrix, -0.5f, -0.5f, 0f)
-        .setColor(255, 255, 255, 255)
-        .setUv(0f, 1f)
-        .setOverlay(overlay)
-        .setLight(light)
-        .setNormal(0, 0, 1);
+    Vec3 clockFaceCenter = new Vec3(0.5, 0.5, 0.5)
+        .relative(facingDirection, 0.5)
+        .relative(shiftDirection, isFront ? 0 : (double) 14 / 16);
 
-    buffer
-        .addVertex(matrix, 0.5f, -0.5f, 0f)
-        .setColor(255, 255, 255, 255)
-        .setUv(1f, 1f)
-        .setOverlay(overlay)
-        .setLight(light)
-        .setNormal(0, 0, 1);
+    matrices.translate(clockFaceCenter);
+    matrices.rotateAround(Axis.YP.rotationDegrees(rotation), 0, 0, 0);
+  }
 
-    buffer
-        .addVertex(matrix, 0.5f, 0.5f, 0f)
-        .setColor(255, 255, 255, 255)
-        .setUv(1f, 0f)
-        .setOverlay(overlay)
-        .setLight(light)
-        .setNormal(0, 0, 1);
+  private static void drawClockHand(ResourceLocation texture, int frameOffset, PoseStack matrices, MultiBufferSource vertexConsumers, int light, int overlay) {
+    matrices.translate(0, 0, CLOCK_HAND_OFFSET);
+    PoseStack.Pose lastPose = matrices.last();
 
-    buffer
-        .addVertex(matrix, -0.5f, 0.5f, 0f)
-        .setColor(255, 255, 255, 255)
-        .setUv(0f, 0f)
-        .setOverlay(overlay)
-        .setLight(light)
-        .setNormal(0, 0, 1);
+    VertexConsumer buf = vertexConsumers.getBuffer(RenderType.entityCutoutNoCull(texture));
+    drawQuad(buf, NO_TINT, frameOffset, AnalogClockFace.CLOCK_HAND_FRAMES, lastPose.pose(), light, overlay);
   }
 }

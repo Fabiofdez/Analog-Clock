@@ -11,6 +11,7 @@ import net.minecraft.network.protocol.game.ClientboundBlockEntityDataPacket;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.sounds.SoundSource;
+import net.minecraft.util.RandomSource;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
@@ -43,12 +44,18 @@ public class AnalogClockFace extends BlockEntity {
   public static void tick(Level level, BlockPos pos, BlockState state, BlockEntity entity) {
     if (level.isClientSide || !(entity instanceof AnalogClockFace clockFace)) return;
 
-    if (level.dimension() != Level.OVERWORLD) return; // TODO: chaotic wobble?
+    int nextFrame;
+    if (level.dimension() == Level.OVERWORLD) {
+      boolean animationInProgress = clockFace.ANIMATOR.inProgress();
+      nextFrame = calculateNextFrame(level, clockFace);
+      if (nextFrame == clockFace.currentFrame) return;
 
-    int nextFrame = getNextFrame(level, clockFace);
-    if (nextFrame == clockFace.currentFrame) return;
+      if (animationInProgress) playWindUpTick(clockFace, level, pos);
+    } else {
+      nextFrame = goToRandomFrame(level, clockFace);
+      if (nextFrame == clockFace.currentFrame) return;
+    }
 
-    if (clockFace.ANIMATOR.inProgress()) playWindUpTick(clockFace, level, pos);
     clockFace.currentFrame = nextFrame;
     setChanged(level, pos, state);
 
@@ -66,7 +73,7 @@ public class AnalogClockFace extends BlockEntity {
     return (currentFrame % HOUR_FRAMES_RADIX) + (hourPart * HOUR_FRAMES_RADIX);
   }
 
-  private static int getNextFrame(Level level, AnalogClockFace clockFace) {
+  private static int calculateNextFrame(Level level, AnalogClockFace clockFace) {
     ClockHandsInterpolator animator = clockFace.ANIMATOR;
     long dayTime = level.getDayTime();
     int nextFrame;
@@ -88,6 +95,18 @@ public class AnalogClockFace extends BlockEntity {
     return nextFrame;
   }
 
+  private static int goToRandomFrame(Level level, AnalogClockFace clockFace) {
+    ClockHandsInterpolator animator = clockFace.ANIMATOR;
+
+    if (animator.inProgress()) return animator.step();
+
+    RandomSource rand = level.getRandom();
+    int randomFrame = rand.nextInt(0, NUM_CLOCK_FRAMES) % NUM_CLOCK_FRAMES;
+    animator.interp(clockFace.currentFrame, randomFrame);
+
+    return animator.step();
+  }
+
   private static int toClockFrame(long dayTime) {
     long clockTime = (dayTime + SUNRISE_TICK_OFFSET) % HALF_DAY_LENGTH_TICKS;
     int frameOffset = Math.toIntExact((clockTime * CLOCK_HAND_FRAMES) / HOUR_LENGTH_TICKS);
@@ -98,14 +117,18 @@ public class AnalogClockFace extends BlockEntity {
   private static void playWindUpTick(AnalogClockFace clockFace, Level level, BlockPos pos) {
     if (level == null || clockFace == null) return;
 
-    float chance = level
-        .getRandom()
-        .nextFloat();
+    RandomSource rand = level.getRandom();
+    float chance = rand.nextFloat();
+    float animationSpeed = clockFace.ANIMATOR.speed(); // range: [1, 5]
+    if (chance / animationSpeed > 0.5F) return;
 
-    if (chance / clockFace.ANIMATOR.speed() > 0.5F) return;
+    float pitch = (animationSpeed + 9) / 10; // range: [1, 1.4]
+    pitch += (rand.nextFloat() * 0.4F) - 0.2F; // offset in range [-0.2, 0.2]
 
-    float pitch = chance >= 0.75F ? 1.2F : 1.4F;
-    level.playSound(null, pos, SoundEvents.SPYGLASS_USE, SoundSource.BLOCKS, 0.5F, pitch);
+    float volume = (animationSpeed + 3) / 10; // range [0.4, 0.8]
+    volume += (rand.nextFloat() * 0.2F) - 0.1F; // offset in range [-0.1, 0.1]
+
+    level.playSound(null, pos, SoundEvents.SPYGLASS_USE, SoundSource.BLOCKS, volume, pitch);
   }
 
   @Override
