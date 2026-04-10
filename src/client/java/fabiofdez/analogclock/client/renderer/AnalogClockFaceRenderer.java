@@ -28,8 +28,8 @@ public class AnalogClockFaceRenderer extends AnimatedEntityRenderer<AnalogClockF
     matrices.pushPose();
 
     orientClockFace(matrices, clockFace.getBlockState());
-    drawClockHand(HOUR_TEXTURE, clockFace.getHourFrame(), matrices, vertexConsumers, light, overlay);
     drawClockHand(MINUTE_TEXTURE, clockFace.getMinuteFrame(), matrices, vertexConsumers, light, overlay);
+    drawClockHand(HOUR_TEXTURE, clockFace.getHourFrame(), matrices, vertexConsumers, light, overlay);
 
     matrices.popPose();
   }

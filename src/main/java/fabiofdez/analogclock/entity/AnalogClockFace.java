@@ -1,7 +1,7 @@
 package fabiofdez.analogclock.entity;
 
 import fabiofdez.analogclock.ModBlockEntities;
-import fabiofdez.analogclock.util.ClockHandsInterpolator;
+import fabiofdez.analogclock.util.FrameInterpolator;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.nbt.CompoundTag;
@@ -97,7 +97,6 @@ public class AnalogClockFace extends BlockEntity {
 
   private static int goToRandomFrame(Level level, AnalogClockFace clockFace) {
     ClockHandsInterpolator animator = clockFace.ANIMATOR;
-
     if (animator.inProgress()) return animator.step();
 
     RandomSource rand = level.getRandom();
@@ -157,6 +156,12 @@ public class AnalogClockFace extends BlockEntity {
   @Override
   public @Nullable Packet<ClientGamePacketListener> getUpdatePacket() {
     return ClientboundBlockEntityDataPacket.create(this);
+  }
+
+  static class ClockHandsInterpolator extends FrameInterpolator {
+    public ClockHandsInterpolator() {
+      super(new Config(NUM_CLOCK_FRAMES));
+    }
   }
 }
 
