@@ -14,5 +14,6 @@ public class ModLangProvider extends FabricLanguageProvider {
   @Override
   public void generateTranslations(HolderLookup.Provider provider, TranslationBuilder translationBuilder) {
     translationBuilder.add("block.analog-clock.analog_clock", "Analog Clock");
+    translationBuilder.add("block.analog-clock.amethyst_pendulum", "Amethyst Pendulum");
   }
 }

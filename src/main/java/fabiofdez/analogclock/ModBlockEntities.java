@@ -1,6 +1,7 @@
 package fabiofdez.analogclock;
 
 import fabiofdez.analogclock.entity.AnalogClockFace;
+import fabiofdez.analogclock.entity.PendulumEntity;
 import net.fabricmc.fabric.api.object.builder.v1.block.entity.FabricBlockEntityTypeBuilder;
 import net.minecraft.core.Registry;
 import net.minecraft.core.registries.BuiltInRegistries;
@@ -13,6 +14,11 @@ public class ModBlockEntities {
       "clock_face",
       AnalogClockFace::new,
       ModBlocks.ANALOG_CLOCK
+  );
+  public static final BlockEntityType<PendulumEntity> PENDULUM_ENTITY = register(
+      "gemstone",
+      PendulumEntity::new,
+      ModBlocks.AMETHYST_PENDULUM
   );
 
   private static <T extends BlockEntity> BlockEntityType<T> register(String name, FabricBlockEntityTypeBuilder.Factory<? extends T> entityFactory, Block... blocks) {

@@ -1,6 +1,7 @@
 package fabiofdez.analogclock;
 
 import fabiofdez.analogclock.block.AnalogClockBlock;
+import fabiofdez.analogclock.block.AmethystPendulumBlock;
 import net.fabricmc.fabric.api.itemgroup.v1.ItemGroupEvents;
 import net.minecraft.core.Registry;
 import net.minecraft.core.registries.BuiltInRegistries;
@@ -19,6 +20,16 @@ public class ModBlocks {
   public static final Block ANALOG_CLOCK = register(
       "analog_clock",
       AnalogClockBlock::new,
+      BlockBehaviour.Properties
+          .of()
+          .sound(SoundType.COPPER)
+          .instabreak()
+          .pushReaction(PushReaction.DESTROY)
+          .noOcclusion()
+  );
+  public static final Block AMETHYST_PENDULUM = register(
+      "amethyst_pendulum",
+      AmethystPendulumBlock::new,
       BlockBehaviour.Properties
           .of()
           .sound(SoundType.COPPER)
@@ -46,6 +57,9 @@ public class ModBlocks {
   public static void initialize() {
     ItemGroupEvents
         .modifyEntriesEvent(CreativeModeTabs.TOOLS_AND_UTILITIES)
-        .register((itemGroup) -> itemGroup.accept(ANALOG_CLOCK.asItem()));
+        .register((itemGroup) -> {
+          itemGroup.accept(ANALOG_CLOCK.asItem());
+          itemGroup.accept(AMETHYST_PENDULUM.asItem());
+        });
   }
 }

@@ -35,6 +35,19 @@ public class ModRecipeProvider extends FabricRecipeProvider {
             .unlockedBy(getHasName(Items.IRON_INGOT), has(Items.IRON_INGOT))
 
             .save(output);
+
+        shaped(RecipeCategory.MISC, ModBlocks.AMETHYST_PENDULUM)
+            .pattern("c")
+            .pattern("i")
+            .pattern("a")
+
+            .define('c', Items.COPPER_INGOT)
+            .define('i', Items.IRON_INGOT)
+            .define('a', Items.AMETHYST_SHARD)
+
+            .unlockedBy(getHasName(Items.AMETHYST_SHARD), has(Items.AMETHYST_SHARD))
+
+            .save(output);
       }
     };
   }

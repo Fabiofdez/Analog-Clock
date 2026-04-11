@@ -15,5 +15,6 @@ public class ModLootTableProvider extends FabricBlockLootTableProvider {
   @Override
   public void generate() {
     dropSelf(ModBlocks.ANALOG_CLOCK);
+    dropSelf(ModBlocks.AMETHYST_PENDULUM);
   }
 }
