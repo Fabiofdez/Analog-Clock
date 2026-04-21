@@ -1,5 +1,7 @@
 package fabiofdez.analogclock.client.datagen;
 
+import fabiofdez.analogclock.ModBlocks;
+import fabiofdez.analogclock.ModSounds;
 import net.fabricmc.fabric.api.datagen.v1.FabricDataOutput;
 import net.fabricmc.fabric.api.datagen.v1.provider.FabricLanguageProvider;
 import net.minecraft.core.HolderLookup;
@@ -13,7 +15,10 @@ public class ModLangProvider extends FabricLanguageProvider {
 
   @Override
   public void generateTranslations(HolderLookup.Provider provider, TranslationBuilder translationBuilder) {
-    translationBuilder.add("block.analog-clock.analog_clock", "Analog Clock");
-    translationBuilder.add("block.analog-clock.amethyst_pendulum", "Amethyst Pendulum");
+    translationBuilder.add(ModBlocks.ANALOG_CLOCK, "Analog Clock");
+    translationBuilder.add(ModBlocks.AMETHYST_PENDULUM, "Amethyst Pendulum");
+
+    translationBuilder.add(ModSounds.CLOCK_WIND, "Clock winding up");
+    translationBuilder.add(ModSounds.CLOCK_TICK, "Pendulum ticking");
   }
 }

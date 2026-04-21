@@ -3,7 +3,6 @@
 	"package": "fabiofdez.analogclock.mixin",
 	"compatibilityLevel": "JAVA_21",
 	"mixins": [
-		"ExampleMixin"
 	],
 	"injectors": {
 		"defaultRequire": 1

@@ -1,6 +1,8 @@
 package fabiofdez.analogclock.entity;
 
 import fabiofdez.analogclock.ModBlockEntities;
+import fabiofdez.analogclock.ModBlocks;
+import fabiofdez.analogclock.ModSounds;
 import fabiofdez.analogclock.block.AmethystPendulumBlock;
 import fabiofdez.analogclock.color.GemstoneColor;
 import fabiofdez.analogclock.util.FrameInterpolator;
@@ -12,7 +14,6 @@ import net.minecraft.network.protocol.Packet;
 import net.minecraft.network.protocol.game.ClientGamePacketListener;
 import net.minecraft.network.protocol.game.ClientboundBlockEntityDataPacket;
 import net.minecraft.server.level.ServerLevel;
-import net.minecraft.sounds.SoundEvents;
 import net.minecraft.sounds.SoundSource;
 import net.minecraft.util.RandomSource;
 import net.minecraft.world.level.GameRules;
@@ -32,14 +33,14 @@ public class PendulumEntity extends BlockEntity {
   public static final int PENDULUM_HALF_PHASE = NUM_PENDULUM_FRAMES / 2;
 
   private final GravityInterpolator SWING_INTERPOLATOR;
-  private final PhaseTintInterpolator COLOR_PHASE_ANIMATOR;
   private int swingFrameOffset = -1;
   private int currentSwingFrame = 0;
-  private int currentColorPhase = 0;
+  private boolean swinging = true;
 
+  private final PhaseTintInterpolator COLOR_PHASE_ANIMATOR;
+  private int currentColorPhase = 0;
   private int alternateTint = GemstoneColor.NO_COLOR;
   private boolean inOverworld = true;
-  private boolean swinging = true;
 
   public PendulumEntity(BlockPos pos, BlockState state) {
     super(ModBlockEntities.PENDULUM_ENTITY, pos, state);
@@ -179,9 +180,8 @@ public class PendulumEntity extends BlockEntity {
   }
 
   private static void playTickTock(PendulumEntity pendulum, Level level, BlockPos pos) {
-    float volume = 0.04F; // very quiet
     float pitch = pendulum.currentSwingFrame == 0 ? 50F : 25F;
-    level.playSound(null, pos, SoundEvents.SHIELD_BLOCK.value(), SoundSource.BLOCKS, volume, pitch);
+    level.playSound(null, pos, ModSounds.CLOCK_TICK, SoundSource.BLOCKS, 1F, pitch);
   }
 
   private boolean differentFrom(int swingFrame, int colorPhase) {

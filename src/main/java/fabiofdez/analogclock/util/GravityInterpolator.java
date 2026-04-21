@@ -1,6 +1,5 @@
 package fabiofdez.analogclock.util;
 
-import fabiofdez.analogclock.AnalogClock;
 import fabiofdez.analogclock.entity.PendulumEntity;
 
 import java.util.ArrayDeque;

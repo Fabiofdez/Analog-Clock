@@ -1,6 +1,7 @@
 package fabiofdez.analogclock.entity;
 
 import fabiofdez.analogclock.ModBlockEntities;
+import fabiofdez.analogclock.ModSounds;
 import fabiofdez.analogclock.util.FrameInterpolator;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.HolderLookup;
@@ -9,7 +10,6 @@ import net.minecraft.network.protocol.Packet;
 import net.minecraft.network.protocol.game.ClientGamePacketListener;
 import net.minecraft.network.protocol.game.ClientboundBlockEntityDataPacket;
 import net.minecraft.server.level.ServerLevel;
-import net.minecraft.sounds.SoundEvents;
 import net.minecraft.sounds.SoundSource;
 import net.minecraft.util.RandomSource;
 import net.minecraft.world.level.Level;
@@ -127,7 +127,7 @@ public class AnalogClockFace extends BlockEntity {
     float volume = (animationSpeed + 3) / 10; // range [0.4, 0.8]
     volume += (rand.nextFloat() * 0.2F) - 0.1F; // offset in range [-0.1, 0.1]
 
-    level.playSound(null, pos, SoundEvents.SPYGLASS_USE, SoundSource.BLOCKS, volume, pitch);
+    level.playSound(null, pos, ModSounds.CLOCK_WIND, SoundSource.BLOCKS, volume, pitch);
   }
 
   @Override
