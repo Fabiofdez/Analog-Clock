@@ -44,7 +44,7 @@ public class PendulumRenderer extends AnimatedEntityRenderer<PendulumEntity> {
   }
 
   @Override
-  public void extractRenderState(PendulumEntity pendulum, PendulumRenderState renderState, float tickProgress, Vec3 cameraPos, ModelFeatureRenderer CrumblingOverlay crumblingOverlay) {
+  public void extractRenderState(PendulumEntity pendulum, PendulumRenderState renderState, float tickProgress, Vec3 cameraPos, ModelFeatureRenderer.CrumblingOverlay crumblingOverlay) {
     super.extractRenderState(pendulum, renderState, tickProgress, cameraPos, crumblingOverlay);
     renderState.extractRenderState(pendulum);
   }
