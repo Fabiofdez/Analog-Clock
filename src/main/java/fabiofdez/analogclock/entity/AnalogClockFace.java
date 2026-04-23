@@ -15,6 +15,10 @@ import net.minecraft.util.RandomSource;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
+//? if >= 1.21.11 {
+/*import net.minecraft.world.level.storage.ValueInput;
+import net.minecraft.world.level.storage.ValueOutput;
+*///? }
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -42,7 +46,7 @@ public class AnalogClockFace extends BlockEntity {
   }
 
   public static void tick(Level level, BlockPos pos, BlockState state, BlockEntity entity) {
-    if (level.isClientSide || !(entity instanceof AnalogClockFace clockFace)) return;
+    if (level.isClientSide() || !(entity instanceof AnalogClockFace clockFace)) return;
 
     int nextFrame;
     if (level.dimension() == Level.OVERWORLD) {
@@ -59,9 +63,7 @@ public class AnalogClockFace extends BlockEntity {
     clockFace.currentFrame = nextFrame;
     setChanged(level, pos, state);
 
-    ((ServerLevel) level)
-        .getChunkSource()
-        .blockChanged(pos);
+    ((ServerLevel) level).getChunkSource().blockChanged(pos);
   }
 
   public int getHourFrame() {
@@ -131,21 +133,32 @@ public class AnalogClockFace extends BlockEntity {
   }
 
   @Override
-  protected void saveAdditional(CompoundTag nbt, HolderLookup.Provider registryLookup) {
+      //? if <= 1.21.5
+  protected void saveAdditional(CompoundTag output, HolderLookup.Provider registryLookup) {
+      //? if >= 1.21.11
+  //protected void saveAdditional(ValueOutput output) {
     if (ANIMATOR.isInitialized()) {
-      nbt.putInt("clockFrame", currentFrame);
+      output.putInt("clockFrame", currentFrame);
     }
 
-    super.saveAdditional(nbt, registryLookup);
+    //? if <= 1.21.5
+    super.saveAdditional(output, registryLookup);
+    //? if >= 1.21.11
+    //super.saveAdditional(output);
   }
 
   @Override
-  protected void loadAdditional(CompoundTag nbt, HolderLookup.Provider registryLookup) {
-    super.loadAdditional(nbt, registryLookup);
+      //? if <= 1.21.5 {
+  protected void loadAdditional(CompoundTag input, HolderLookup.Provider registryLookup) {
+    super.loadAdditional(input, registryLookup);
+    //? }
 
-    nbt
-        .getInt("clockFrame")
-        .ifPresent((num) -> currentFrame = num);
+      //? if >= 1.21.11 {
+  /*protected void loadAdditional(ValueInput input) {
+    super.loadAdditional(input);
+    *///? }
+
+    input.getInt("clockFrame").ifPresent((num) -> currentFrame = num);
   }
 
   @Override

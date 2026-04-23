@@ -1,8 +1,8 @@
 {
 	"schemaVersion": 1,
-	"id": "analog-clock",
+	"id": "${id}",
 	"version": "${version}",
-	"name": "Analog Clock",
+	"name": "${name}",
 	"description": "A new way to tell time",
 	"authors": [
 		"Fabiofdez"
@@ -32,7 +32,7 @@
 		}
 	],
 	"depends": {
-		"fabricloader": ">=0.17.2",
+		"fabricloader": ">=${loader_version}",
 		"minecraft": "${minecraft}",
 		"java": ">=21",
 		"fabric-api": "*"

@@ -5,6 +5,12 @@ plugins {
 version = property("mod_version") as String
 group = property("maven_group") as String
 
+var modId = property("mod_id") as String
+var displayName = property("display_name") as String
+var minecraftVersion = property("minecraft_version") as String
+var loaderVersion = property("loader_version") as String
+var jarName = "${modId}-${project.version}+mc${minecraftVersion}"
+
 repositories {
     // Add repositories to retrieve artifacts from in here.
     // You should only use this when depending on other mods because
@@ -30,12 +36,10 @@ fabricApi {
     }
 }
 
-var minecraftVersion = property("minecraft_version") as String
-
 dependencies {
-    minecraft("com.mojang:minecraft:${property("minecraft_version")}")
+    minecraft("com.mojang:minecraft:${minecraftVersion}")
     mappings(loom.officialMojangMappings())
-    modImplementation("net.fabricmc:fabric-loader:${property("loader_version")}")
+    modImplementation("net.fabricmc:fabric-loader:${loaderVersion}")
 
     modImplementation("net.fabricmc.fabric-api:fabric-api:${property("fabric_api_version")}")
 }
@@ -45,7 +49,11 @@ tasks.processResources {
     inputs.property("minecraft", minecraftVersion)
 
     var props = mapOf(
-        "version" to project.version, "minecraft" to minecraftVersion
+        "id" to modId,
+        "version" to project.version,
+        "name" to displayName,
+        "loader_version" to loaderVersion,
+        "minecraft" to minecraftVersion
     )
 
     filesMatching("fabric.mod.json") { expand(props) }
@@ -56,9 +64,6 @@ tasks.withType<JavaCompile>().configureEach {
 }
 
 java {
-    // Loom will automatically attach sourcesJar to a RemapSourcesJar task and to the "build" task
-    // if it is present.
-    // If you remove this line, sources will not be generated.
     withSourcesJar()
 
     sourceCompatibility = JavaVersion.VERSION_21
@@ -72,9 +77,6 @@ tasks.jar {
         rename { "${it}_${project.name}" }
     }
 }
-
-// configure build artifact files
-var jarName = "${property("artifact_name")}-${project.version}+mc${minecraftVersion}"
 
 tasks.remapJar {
     archiveFileName = "${jarName}.jar"

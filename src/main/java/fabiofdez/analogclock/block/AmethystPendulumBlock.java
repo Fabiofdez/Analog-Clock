@@ -33,10 +33,7 @@ public class AmethystPendulumBlock extends DirectionalAlignedBlock implements En
 
   public AmethystPendulumBlock(Properties properties) {
     super(properties);
-
-    this.registerDefaultState(this
-        .defaultBlockState()
-        .setValue(DAY_PHASE, 0));
+    this.registerDefaultState(this.defaultBlockState().setValue(DAY_PHASE, 0));
   }
 
   protected boolean mayPlaceUnder(BlockState state, BlockGetter blockGetter, BlockPos pos) {
@@ -72,9 +69,7 @@ public class AmethystPendulumBlock extends DirectionalAlignedBlock implements En
     if (newState == null) return null;
 
     if (blockAbove.is(ModBlocks.ANALOG_CLOCK)) {
-      return newState
-          .setValue(FACING, blockAbove.getValue(FACING))
-          .setValue(ALIGNMENT, blockAbove.getValue(ALIGNMENT));
+      return newState.setValue(FACING, blockAbove.getValue(FACING)).setValue(ALIGNMENT, blockAbove.getValue(ALIGNMENT));
     }
 
     return newState;
@@ -107,7 +102,7 @@ public class AmethystPendulumBlock extends DirectionalAlignedBlock implements En
 
   @Override
   public <T extends BlockEntity> BlockEntityTicker<T> getTicker(Level level, BlockState blockState, BlockEntityType<T> blockEntityType) {
-    if (level.isClientSide || blockEntityType != ModBlockEntities.PENDULUM_ENTITY) return null;
+    if (level.isClientSide() || blockEntityType != ModBlockEntities.PENDULUM_ENTITY) return null;
 
     return PendulumEntity::tick;
   }

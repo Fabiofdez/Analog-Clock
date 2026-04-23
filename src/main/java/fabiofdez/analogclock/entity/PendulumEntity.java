@@ -20,6 +20,10 @@ import net.minecraft.world.level.GameRules;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
+//? if >= 1.21.11 {
+/*import net.minecraft.world.level.storage.ValueInput;
+import net.minecraft.world.level.storage.ValueOutput;
+*///? }
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -50,7 +54,7 @@ public class PendulumEntity extends BlockEntity {
   }
 
   public static void tick(Level level, BlockPos pos, BlockState state, BlockEntity entity) {
-    if (level.isClientSide || !(entity instanceof PendulumEntity pendulum)) return;
+    if (level.isClientSide() || !(entity instanceof PendulumEntity pendulum)) return;
     if (!(state.getBlock() instanceof AmethystPendulumBlock)) return;
 
     long dayTime = level.getDayTime();
@@ -101,7 +105,10 @@ public class PendulumEntity extends BlockEntity {
 
   private static int calculateNextSwingFrame(Level level, long dayTime, PendulumEntity pendulum) {
     GameRules rules = ((ServerLevel) level).getGameRules();
+    //? if <= 1.21.5
     boolean doDaylightCycle = rules.getRule(GameRules.RULE_DAYLIGHT).get();
+    //? if >= 1.21.11
+    //boolean doDaylightCycle = rules.get(GameRules.ADVANCE_TIME);
 
     if (doDaylightCycle) {
       pendulum.swinging = true;
@@ -189,30 +196,45 @@ public class PendulumEntity extends BlockEntity {
   }
 
   @Override
-  protected void saveAdditional(CompoundTag nbt, HolderLookup.Provider registryLookup) {
-    nbt.putBoolean("swinging", swinging);
-    nbt.putBoolean("inOverworld", inOverworld);
-    nbt.putInt("alternateTint", alternateTint);
-    nbt.putInt("swingOffset", swingFrameOffset);
-    nbt.putInt("swingFrame", currentSwingFrame);
+    //? if <= 1.21.5
+  protected void saveAdditional(CompoundTag output, HolderLookup.Provider registryLookup) {
+    //? if >= 1.21.11
+  //protected void saveAdditional(ValueOutput output) {
+    output.putBoolean("swinging", swinging);
+    output.putBoolean("inOverworld", inOverworld);
+    output.putInt("alternateTint", alternateTint);
+    output.putInt("swingOffset", swingFrameOffset);
+    output.putInt("swingFrame", currentSwingFrame);
 
     if (COLOR_PHASE_ANIMATOR.isInitialized()) {
-      nbt.putInt("colorPhase", currentColorPhase);
+      output.putInt("colorPhase", currentColorPhase);
     }
 
-    super.saveAdditional(nbt, registryLookup);
+    //? if <= 1.21.5
+    super.saveAdditional(output, registryLookup);
+    //? if >= 1.21.11
+    //super.saveAdditional(output);
   }
 
   @Override
-  protected void loadAdditional(CompoundTag nbt, HolderLookup.Provider registryLookup) {
-    super.loadAdditional(nbt, registryLookup);
+    //? if <= 1.21.5 {
+  protected void loadAdditional(CompoundTag input, HolderLookup.Provider registryLookup) {
+    super.loadAdditional(input, registryLookup);
+    input.getBoolean("swinging").ifPresent((val) -> swinging = val);
+    input.getBoolean("inOverworld").ifPresent((val) -> inOverworld = val);
+    //? }
 
-    nbt.getBoolean("swinging").ifPresent((val) -> swinging = val);
-    nbt.getBoolean("inOverworld").ifPresent((val) -> inOverworld = val);
-    nbt.getInt("alternateTint").ifPresent((val) -> alternateTint = val);
-    nbt.getInt("swingOffset").ifPresent((num) -> swingFrameOffset = num);
-    nbt.getInt("swingFrame").ifPresent((num) -> currentSwingFrame = num);
-    nbt.getInt("colorPhase").ifPresent((num) -> currentColorPhase = num);
+    //? if >= 1.21.11 {
+  /*protected void loadAdditional(ValueInput input) {
+    super.loadAdditional(input);
+    swinging = input.getBooleanOr("swinging", swinging);
+    inOverworld = input.getBooleanOr("inOverworld", inOverworld);
+  *///? }
+
+    input.getInt("alternateTint").ifPresent((val) -> alternateTint = val);
+    input.getInt("swingOffset").ifPresent((num) -> swingFrameOffset = num);
+    input.getInt("swingFrame").ifPresent((num) -> currentSwingFrame = num);
+    input.getInt("colorPhase").ifPresent((num) -> currentColorPhase = num);
   }
 
   @Override
