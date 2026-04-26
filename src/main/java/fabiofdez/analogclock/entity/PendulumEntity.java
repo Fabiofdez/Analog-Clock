@@ -47,7 +47,7 @@ public class PendulumEntity extends BlockEntity {
   private boolean inOverworld = true;
 
   public PendulumEntity(BlockPos pos, BlockState state) {
-    super(ModBlockEntities.PENDULUM_ENTITY, pos, state);
+    super(ModBlockEntities.PENDULUM_ENTITY.get(), pos, state);
 
     SWING_INTERPOLATOR = new GravityInterpolator();
     COLOR_PHASE_ANIMATOR = new PhaseTintInterpolator();
@@ -188,7 +188,7 @@ public class PendulumEntity extends BlockEntity {
 
   private static void playTickTock(PendulumEntity pendulum, Level level, BlockPos pos) {
     float pitch = pendulum.currentSwingFrame == 0 ? 50F : 25F;
-    level.playSound(null, pos, ModSounds.CLOCK_TICK, SoundSource.BLOCKS, 1F, pitch);
+    level.playSound(null, pos, ModSounds.CLOCK_TICK.get(), SoundSource.BLOCKS, 1F, pitch);
   }
 
   private boolean differentFrom(int swingFrame, int colorPhase) {

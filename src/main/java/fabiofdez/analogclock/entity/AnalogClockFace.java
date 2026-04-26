@@ -39,7 +39,7 @@ public class AnalogClockFace extends BlockEntity {
   private int currentFrame;
 
   public AnalogClockFace(BlockPos blockPos, BlockState blockState) {
-    super(ModBlockEntities.CLOCK_FACE_ENTITY, blockPos, blockState);
+    super(ModBlockEntities.CLOCK_FACE_ENTITY.get(), blockPos, blockState);
 
     currentFrame = INITIAL_CLOCK_FRAME;
     ANIMATOR = new ClockHandsInterpolator();
@@ -129,7 +129,7 @@ public class AnalogClockFace extends BlockEntity {
     float volume = (animationSpeed + 3) / 10; // range [0.4, 0.8]
     volume += (rand.nextFloat() * 0.2F) - 0.1F; // offset in range [-0.1, 0.1]
 
-    level.playSound(null, pos, ModSounds.CLOCK_WIND, SoundSource.BLOCKS, volume, pitch);
+    level.playSound(null, pos, ModSounds.CLOCK_WIND.get(), SoundSource.BLOCKS, volume, pitch);
   }
 
   @Override

@@ -1,0 +1,23 @@
+{
+  "clock_tick": {
+    "category": "block",
+    "sounds": [
+      {
+        "type": "event",
+        "name": "minecraft:item.shield.block",
+        "volume": 0.04
+      }
+    ],
+    "subtitle": "subtitles.analogclock.clock_tick"
+  },
+  "clock_wind": {
+    "category": "block",
+    "sounds": [
+      {
+        "type": "event",
+        "name": "minecraft:item.spyglass.use"
+      }
+    ],
+    "subtitle": "subtitles.analogclock.clock_wind"
+  }
+}

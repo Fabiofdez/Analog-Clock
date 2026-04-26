@@ -37,7 +37,7 @@ public class AnalogClockBlock extends DirectionalAlignedBlock implements EntityB
 
   @Override
   public <T extends BlockEntity> BlockEntityTicker<T> getTicker(Level level, BlockState blockState, BlockEntityType<T> blockEntityType) {
-    if (level.isClientSide() || blockEntityType != ModBlockEntities.CLOCK_FACE_ENTITY) return null;
+    if (level.isClientSide() || blockEntityType != ModBlockEntities.CLOCK_FACE_ENTITY.get()) return null;
 
     return AnalogClockFace::tick;
   }

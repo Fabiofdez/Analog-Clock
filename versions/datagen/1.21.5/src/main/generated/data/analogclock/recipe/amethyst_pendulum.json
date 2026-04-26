@@ -1,0 +1,18 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "misc",
+  "key": {
+    "a": "minecraft:amethyst_shard",
+    "c": "minecraft:copper_ingot",
+    "i": "minecraft:iron_ingot"
+  },
+  "pattern": [
+    "c",
+    "i",
+    "a"
+  ],
+  "result": {
+    "count": 1,
+    "id": "analogclock:amethyst_pendulum"
+  }
+}
