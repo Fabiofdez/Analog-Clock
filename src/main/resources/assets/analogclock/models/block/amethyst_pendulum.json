@@ -3,7 +3,7 @@
 	"credit": "Made with Blockbench",
 	"ambientocclusion": false,
 	"textures": {
-		"particle": "analog-clock:block/pendulum"
+		"particle": "analogclock:block/pendulum"
 	},
 	"elements": []
 }

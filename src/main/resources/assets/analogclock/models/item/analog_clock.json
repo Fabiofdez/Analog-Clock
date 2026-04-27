@@ -1,6 +1,6 @@
 {
   "parent": "minecraft:item/generated",
   "textures": {
-    "layer0": "analog-clock:item/analog_clock"
+    "layer0": "analogclock:item/analog_clock"
   }
 }

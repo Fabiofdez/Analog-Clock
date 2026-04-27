@@ -1,6 +1,6 @@
 {
   "schemaVersion": 1,
-  "id": "analogclock",
+  "id": "${id}",
   "name": "${name}",
   "version": "${version}",
   "authors": ["${authors}"],
@@ -19,16 +19,16 @@
   "accessWidener": "aw/${minecraft}.accesswidener",
   "entrypoints": {
     "main": [
-      "fabiofdez.analogclock.platform.fabric.FabricEntrypoint"
+      "${group}.${id}.platform.fabric.FabricEntrypoint"
     ],
     "client": [
-      "fabiofdez.analogclock.platform.fabric.FabricClientEntrypoint"
+      "${group}.${id}.platform.fabric.FabricClientEntrypoint"
     ],
     "fabric-datagen": [
-      "fabiofdez.analogclock.platform.fabric.AnalogClockDataGenerator"
+      "${group}.${id}.platform.fabric.AnalogClockDataGenerator"
     ]
   },
   "mixins": [
-    "analogclock.mixins.json"
+    "${id}.mixins.json"
   ],${dependencies}
 }

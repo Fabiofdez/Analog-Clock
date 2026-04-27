@@ -1,33 +1,33 @@
 {
   "variants": {
     "facing=north,alignment=front": {
-      "model": "analog-clock:block/analog_clock_front"
+      "model": "analogclock:block/analog_clock_front"
     },
     "facing=north,alignment=back": {
-      "model": "analog-clock:block/analog_clock"
+      "model": "analogclock:block/analog_clock"
     },
     "facing=south,alignment=front": {
-      "model": "analog-clock:block/analog_clock_front",
+      "model": "analogclock:block/analog_clock_front",
       "y": 180
     },
     "facing=south,alignment=back": {
-      "model": "analog-clock:block/analog_clock",
+      "model": "analogclock:block/analog_clock",
       "y": 180
     },
     "facing=west,alignment=front": {
-      "model": "analog-clock:block/analog_clock_front",
+      "model": "analogclock:block/analog_clock_front",
       "y": 270
     },
     "facing=west,alignment=back": {
-      "model": "analog-clock:block/analog_clock",
+      "model": "analogclock:block/analog_clock",
       "y": 270
     },
     "facing=east,alignment=front": {
-      "model": "analog-clock:block/analog_clock_front",
+      "model": "analogclock:block/analog_clock_front",
       "y": 90
     },
     "facing=east,alignment=back": {
-      "model": "analog-clock:block/analog_clock",
+      "model": "analogclock:block/analog_clock",
       "y": 90
     }
   }

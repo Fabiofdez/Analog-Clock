@@ -5,18 +5,19 @@ import com.mojang.math.Axis;
 import fabiofdez.analogclock.block.AnalogClockBlock;
 import fabiofdez.analogclock.block.state.properties.Alignment;
 import fabiofdez.analogclock.entity.AnalogClockFace;
-import net.minecraft.client.renderer.RenderType;
 import net.minecraft.client.renderer.blockentity.BlockEntityRendererProvider;
 //? if <= 1.21.5 {
 import com.mojang.blaze3d.vertex.VertexConsumer;
 import net.minecraft.client.renderer.MultiBufferSource;
+import net.minecraft.client.renderer.RenderType;
 //? }
 //? if >= 1.21.11 {
 /*import net.minecraft.client.renderer.SubmitNodeCollector;
 import fabiofdez.analogclock.client.renderer.state.ClockFaceRenderState;
 import net.minecraft.client.renderer.feature.ModelFeatureRenderer;
 import net.minecraft.client.renderer.state.CameraRenderState;
-import net.minecraft.client.renderer.RenderTypes;
+import net.minecraft.client.renderer.rendertype.RenderType;
+import net.minecraft.client.renderer.rendertype.RenderTypes;
 *///? }
 import net.minecraft.core.Direction;
 import net.minecraft.resources.ResourceLocation;
@@ -89,7 +90,7 @@ public class AnalogClockFaceRenderer extends AnimatedEntityRenderer<AnalogClockF
   //? if <= 1.21.5
   private static void drawClockHand(ResourceLocation texture, int frameOffset, PoseStack matrices, MultiBufferSource vertexConsumers, int light) {
   //? if >= 1.21.11
-  //private static void drawClockHand(ResourceLocation texture, int frameOffset, PoseStack matrices, SubmitNodeCollector queue, int light) {
+  //private static void drawClockHand(Identifier texture, int frameOffset, PoseStack matrices, SubmitNodeCollector queue, int light) {
     matrices.translate(0, 0, CLOCK_HAND_OFFSET);
     //? if <= 1.21.5
     RenderType renderType = RenderType.entityCutoutNoCull(texture);

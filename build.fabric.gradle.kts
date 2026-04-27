@@ -14,7 +14,7 @@ platform {
 			versionRange = ">=${prop("deps.fabric-api")}"
 		}
 		required("fabricloader") {
-			versionRange = ">=${libs.fabric.loader.get().version}"
+			versionRange = ">=${prop("deps.fabric-loader")}"
 		}
 //		optional("modmenu") {}
 	}
@@ -59,9 +59,36 @@ dependencies {
 			officialMojangMappings()
 			if (hasProperty("deps.parchment")) parchment("org.parchmentmc.data:parchment-${prop("deps.parchment")}@zip")
 		})
-	modImplementation(libs.fabric.loader)
+	modImplementation("net.fabricmc:fabric-loader:${prop("deps.fabric-loader")}")
 	implementation(libs.moulberry.mixinconstraints)
 	include(libs.moulberry.mixinconstraints)
 	modImplementation("net.fabricmc.fabric-api:fabric-api:${prop("deps.fabric-api")}")
 //	modLocalRuntime("com.terraformersmc:modmenu:${prop("deps.modmenu")}")
 }
+
+tasks.register("genDevModJson") {
+	group = "fabric"
+	description = "Generates fabric.mod.json from template"
+
+	doLast {
+		val templateFile = file("${rootDir}/src/main/resources/fabric.mod.template.json")
+		val outputFile = file("${rootDir}/src/main/resources/fabric.mod.json")
+
+		if (!templateFile.exists()) {
+			println("Template not found, skipping")
+			return@doLast
+		}
+
+		val content = templateFile.readText()
+			.replace($$"${id}", prop("mod.id"))
+			.replace($$"${group}", prop("mod.group"))
+
+		if (!outputFile.exists() || outputFile.readText() != content) {
+			outputFile.writeText(content)
+			println("fabric.mod.json generated")
+		} else {
+			println("fabric.mod.json already up to date")
+		}
+	}
+}
+

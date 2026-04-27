@@ -1,18 +1,18 @@
 {
   "variants": {
     "facing=north": {
-      "model": "analog-clock:block/amethyst_pendulum"
+      "model": "analogclock:block/amethyst_pendulum"
     },
     "facing=south": {
-      "model": "analog-clock:block/amethyst_pendulum",
+      "model": "analogclock:block/amethyst_pendulum",
       "y": 180
     },
     "facing=west": {
-      "model": "analog-clock:block/amethyst_pendulum",
+      "model": "analogclock:block/amethyst_pendulum",
       "y": 270
     },
     "facing=east": {
-      "model": "analog-clock:block/amethyst_pendulum",
+      "model": "analogclock:block/amethyst_pendulum",
       "y": 90
     }
   }

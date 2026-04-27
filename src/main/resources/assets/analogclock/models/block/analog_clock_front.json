@@ -2,10 +2,10 @@
 	"format_version": "1.21.11",
 	"credit": "Made with Blockbench",
 	"textures": {
-		"particle": "analog-clock:block/clock_back",
-		"clock-back": "analog-clock:block/clock_back",
-		"clock-face": "analog-clock:block/clock_face",
-		"clock-frame": "analog-clock:block/clock_frame"
+		"particle": "analogclock:block/clock_back",
+		"clock-back": "analogclock:block/clock_back",
+		"clock-face": "analogclock:block/clock_face",
+		"clock-frame": "analogclock:block/clock_frame"
 	},
 	"elements": [
 		{

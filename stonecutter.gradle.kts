@@ -46,7 +46,6 @@ stonecutter parameters {
 		string(current.parsed >= "1.21.11") {
 			replace("ResourceLocation", "Identifier")
 			replace("world.level.GameRules", "world.level.gamerules.GameRules")
-			replace("renderer.RenderType", "renderer.rendertype.RenderType")
 		}
 	}
 }

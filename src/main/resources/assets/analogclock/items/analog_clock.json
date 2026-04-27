@@ -1,6 +1,6 @@
 {
   "model": {
     "type": "minecraft:model",
-    "model": "analog-clock:item/analog_clock"
+    "model": "analogclock:item/analog_clock"
   }
 }
