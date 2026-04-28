@@ -220,8 +220,15 @@ public class PendulumEntity extends BlockEntity {
     //? if <= 1.21.5 {
   protected void loadAdditional(CompoundTag input, HolderLookup.Provider registryLookup) {
     super.loadAdditional(input, registryLookup);
+
+    //? if > 1.21.1 {
     input.getBoolean("swinging").ifPresent((val) -> swinging = val);
     input.getBoolean("inOverworld").ifPresent((val) -> inOverworld = val);
+    //? } else {
+    /*swinging = input.getBoolean("swinging");
+    inOverworld = input.getBoolean("inOverworld");
+    *///? }
+
     //? }
 
     //? if >= 1.21.11 {
@@ -231,10 +238,17 @@ public class PendulumEntity extends BlockEntity {
     inOverworld = input.getBooleanOr("inOverworld", inOverworld);
   *///? }
 
+    //? if > 1.21.1 {
     input.getInt("alternateTint").ifPresent((val) -> alternateTint = val);
     input.getInt("swingOffset").ifPresent((num) -> swingFrameOffset = num);
     input.getInt("swingFrame").ifPresent((num) -> currentSwingFrame = num);
     input.getInt("colorPhase").ifPresent((num) -> currentColorPhase = num);
+    //? } else {
+    /*alternateTint = input.getInt("alternateTint");
+    swingFrameOffset = input.getInt("swingOffset");
+    currentSwingFrame = input.getInt("swingFrame");
+    currentColorPhase = input.getInt("colorPhase");
+    *///? }
   }
 
   @Override

@@ -1,6 +1,6 @@
 package fabiofdez.analogclock.platform.fabric.datagen;
 
-//? fabric {
+//? fabric && > 1.21.1 {
 
 import fabiofdez.analogclock.ModSounds;
 import net.fabricmc.fabric.api.client.datagen.v1.builder.SoundTypeBuilder;

@@ -20,8 +20,14 @@ public class ModLangProvider extends FabricLanguageProvider {
     translationBuilder.add(ModBlocks.ANALOG_CLOCK.get(), "Analog Clock");
     translationBuilder.add(ModBlocks.AMETHYST_PENDULUM.get(), "Amethyst Pendulum");
 
+    //? > 1.21.1 {
     translationBuilder.add(ModSounds.CLOCK_WIND.get(), "Clock winding up");
     translationBuilder.add(ModSounds.CLOCK_TICK.get(), "Pendulum ticking");
+    //? }
+    //? <= 1.21.1 {
+    /*translationBuilder.add(ModSounds.CLOCK_WIND.get().getLocation(), "Clock winding up");
+    translationBuilder.add(ModSounds.CLOCK_TICK.get().getLocation(), "Pendulum ticking");
+    *///? }
   }
 }
 //?}

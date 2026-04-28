@@ -47,5 +47,13 @@ stonecutter parameters {
 			replace("ResourceLocation", "Identifier")
 			replace("world.level.GameRules", "world.level.gamerules.GameRules")
 		}
+
+		string(current.parsed >= "1.21.9") {
+			replace("FMLEnvironment.dist", "FMLEnvironment.getDist()")
+		}
+
+		string(current.parsed > "1.21.1") {
+			replace("RecipeProvider.has", "provider.has")
+		}
 	}
 }

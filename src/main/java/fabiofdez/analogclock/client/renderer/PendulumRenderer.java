@@ -65,7 +65,7 @@ public class PendulumRenderer extends AnimatedEntityRenderer<PendulumEntity> {
 
   //? if <= 1.21.5 {
   @Override
-  public void render(PendulumEntity pendulum, float tickProgress, PoseStack matrices, MultiBufferSource vertexConsumers, int light, int overlay, Vec3 cameraPos) {
+  public void render(PendulumEntity pendulum, float tickProgress, PoseStack matrices, MultiBufferSource vertexConsumers, int light, int overlay /*? if > 1.21.1 >> ') {' */ , Vec3 cameraPos) {
     matrices.pushPose();
 
     int phaseTint = GemstoneColor.getTint(pendulum);
@@ -93,7 +93,10 @@ public class PendulumRenderer extends AnimatedEntityRenderer<PendulumEntity> {
       pendulumCenter = pendulumCenter.relative(shiftDirection, 0.5 - UNIT_PIXEL_SCALE);
     }
 
+    //? if > 1.21.1
     matrices.translate(pendulumCenter);
+    //? if <= 1.21.1
+    //matrices.translate(pendulumCenter.x, pendulumCenter.y, pendulumCenter.z);
     matrices.rotateAround(Axis.YP.rotationDegrees(rotation), 0, 0, 0);
 
     matrices.translate(0, 0, -GEMSTONE_OFFSET);

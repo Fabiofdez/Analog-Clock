@@ -14,6 +14,8 @@ import net.minecraft.world.level.block.entity.BlockEntityType;
 /*import net.neoforged.bus.api.IEventBus;
 import net.neoforged.neoforge.registries.DeferredBlock;
 import net.neoforged.neoforge.registries.DeferredRegister;
+//? <= 1.21.1
+//import java.util.Set;
 *///? }
 import java.util.function.Supplier;
 
@@ -50,7 +52,12 @@ public class ModBlockEntities {
 
   //? neoforge {
   /*private static <T extends BlockEntity> Supplier<BlockEntityType<T>> register(String name, BlockEntityType.BlockEntitySupplier<T> entityFactory, DeferredBlock<Block> block) {
-    return BLOCK_ENTITY_TYPES.register(name, () -> new BlockEntityType<>(entityFactory, block.get()));
+    //? > 1.21.1
+    Supplier<BlockEntityType<T>> blockEntitySupplier = () -> new BlockEntityType<>(entityFactory, block.get());
+    //? <= 1.21.1
+    //Supplier<BlockEntityType<T>> blockEntitySupplier = () -> new BlockEntityType<>(entityFactory, Set.of(block.get()), null);
+
+    return BLOCK_ENTITY_TYPES.register(name, blockEntitySupplier);
   }
 
   public static void register(IEventBus eventBus) {

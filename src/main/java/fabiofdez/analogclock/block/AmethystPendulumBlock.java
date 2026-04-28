@@ -6,12 +6,16 @@ import fabiofdez.analogclock.ModBlocks;
 import fabiofdez.analogclock.entity.PendulumEntity;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
-import net.minecraft.util.RandomSource;
 import net.minecraft.world.item.context.BlockPlaceContext;
 import net.minecraft.world.level.BlockGetter;
 import net.minecraft.world.level.Level;
+//? <= 1.21.1
+//import net.minecraft.world.level.LevelAccessor;
 import net.minecraft.world.level.LevelReader;
+//? > 1.21.1 {
 import net.minecraft.world.level.ScheduledTickAccess;
+import net.minecraft.util.RandomSource;
+//? }
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.EntityBlock;
@@ -84,10 +88,16 @@ public class AmethystPendulumBlock extends DirectionalAlignedBlock implements En
   }
 
   @Override
+  //? > 1.21.1
   protected @NotNull BlockState updateShape(BlockState state, LevelReader level, ScheduledTickAccess tickAccess, BlockPos pos, Direction direction, BlockPos pos2, BlockState state2, RandomSource rand) {
+  //? <= 1.21.1
+  //protected @NotNull BlockState updateShape(BlockState state, Direction direction, BlockState state2, LevelAccessor level, BlockPos pos, BlockPos pos2) {
     if (!state.canSurvive(level, pos)) return Blocks.AIR.defaultBlockState();
 
+    //? > 1.21.1
     return super.updateShape(state, level, tickAccess, pos, direction, pos2, state2, rand);
+    //? <= 1.21.1
+    //return super.updateShape(state, direction, state2, level, pos, pos2);
   }
 
   @Override

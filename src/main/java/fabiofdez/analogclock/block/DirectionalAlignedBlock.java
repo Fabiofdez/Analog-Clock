@@ -3,6 +3,7 @@ package fabiofdez.analogclock.block;
 import fabiofdez.analogclock.block.state.properties.Alignment;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
+import net.minecraft.core.Vec3i;
 import net.minecraft.world.item.context.BlockPlaceContext;
 import net.minecraft.world.level.BlockGetter;
 import net.minecraft.world.level.block.Block;
@@ -65,18 +66,21 @@ public abstract class DirectionalAlignedBlock extends HorizontalDirectionalBlock
     boolean isFront = state.getValue(ALIGNMENT) == Alignment.FRONT;
     Direction facingDirection = state.getValue(FACING);
     Direction shiftDirection = isFront ? facingDirection : facingDirection.getOpposite();
-    Vec3 shift = shiftDirection
-        .getUnitVec3()
-        .scale(1 - (thickness / 16F));
+    Vec3i unitShift = shiftDirection
+        //? > 1.21.1
+        .getUnitVec3i();
+        //? <= 1.21.1
+        //.getNormal();
 
     VoxelShape FACING_X = Block.box(0, 0, 0, thickness, 16, 16);
     VoxelShape FACING_Z = Block.box(0, 0, 0, 16, 16, thickness);
+    Vec3 shift = Vec3.atLowerCornerOf(unitShift).scale(1 - (thickness / 16F));
 
     return switch (facingDirection) {
-      case NORTH -> isFront ? FACING_Z : FACING_Z.move(shift);
-      case SOUTH -> isFront ? FACING_Z.move(shift) : FACING_Z;
-      case WEST -> isFront ? FACING_X : FACING_X.move(shift);
-      case EAST -> isFront ? FACING_X.move(shift) : FACING_X;
+      case NORTH -> isFront ? FACING_Z : FACING_Z.move(shift /*? if <= 1.21.1 >> ')' */ /*.x, shift.y, shift.z*/);
+      case SOUTH -> isFront ? FACING_Z.move(shift /*? if <= 1.21.1 >> ')' */ /*.x, shift.y, shift.z*/) : FACING_Z;
+      case WEST -> isFront ? FACING_X : FACING_X.move(shift /*? if <= 1.21.1 >> ')' */ /*.x, shift.y, shift.z*/);
+      case EAST -> isFront ? FACING_X.move(shift /*? if <= 1.21.1 >> ')' */ /*.x, shift.y, shift.z*/) : FACING_X;
       default -> Shapes.empty();
     };
   }

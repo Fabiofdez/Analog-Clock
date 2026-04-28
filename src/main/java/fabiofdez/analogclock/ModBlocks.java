@@ -7,11 +7,11 @@ import net.fabricmc.fabric.api.itemgroup.v1.ItemGroupEvents;
 import net.minecraft.core.Registry;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.resources.ResourceKey;
-import net.minecraft.world.item.Item;
 import java.util.function.Supplier;
 //? }
 import net.minecraft.world.item.BlockItem;
 import net.minecraft.world.item.CreativeModeTabs;
+import net.minecraft.world.item.Item;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.SoundType;
 import net.minecraft.world.level.block.state.BlockBehaviour;
@@ -42,10 +42,10 @@ public class ModBlocks {
   //? fabric {
   private static Supplier<Block> register(ModBlockBuilder block) {
     ResourceKey<Block> blockKey = AnalogClock.blockKey(block.name);
-    Block toRegister = block.builder.apply(BlockBehaviour.Properties.of().setId(blockKey));
+    Block toRegister = block.builder.apply(BlockBehaviour.Properties.of() /*? if > 1.21.1 >> ');' */ .setId(blockKey));
 
     ResourceKey<Item> itemKey = AnalogClock.itemKey(block.name);
-    BlockItem blockItem = new BlockItem(toRegister, new Item.Properties().setId(itemKey).useBlockDescriptionPrefix());
+    BlockItem blockItem = new BlockItem(toRegister, new Item.Properties() /*? if > 1.21.1 >> ');' */ .setId(itemKey).useBlockDescriptionPrefix());
 
     Block registeredBlock = Registry.register(BuiltInRegistries.BLOCK, blockKey, toRegister);
     Registry.register(BuiltInRegistries.ITEM, itemKey, blockItem);
@@ -57,7 +57,11 @@ public class ModBlocks {
   //? neoforge {
   /*private static DeferredBlock<Block> register(ModBlockBuilder block) {
     DeferredBlock<Block> registeredBlock = BLOCKS.registerBlock(block.name, block.builder);
+
+    //? > 1.21.1
     ITEMS.registerItem(block.name, (props) -> new BlockItem(registeredBlock.get(), props.useBlockDescriptionPrefix()));
+    //? <= 1.21.1
+    //ITEMS.register(block.name, () -> new BlockItem(registeredBlock.get(), new Item.Properties()));
 
     return registeredBlock;
   }

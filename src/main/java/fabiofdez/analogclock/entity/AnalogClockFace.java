@@ -158,7 +158,10 @@ public class AnalogClockFace extends BlockEntity {
     super.loadAdditional(input);
     *///? }
 
+    //? if > 1.21.1
     input.getInt("clockFrame").ifPresent((num) -> currentFrame = num);
+    //? if <= 1.21.1
+    //currentFrame = input.getInt("clockFrame");
   }
 
   @Override

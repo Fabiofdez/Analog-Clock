@@ -62,7 +62,7 @@ public class AnalogClockFaceRenderer extends AnimatedEntityRenderer<AnalogClockF
 
   //? if <= 1.21.5 {
   @Override
-  public void render(AnalogClockFace clockFace, float tickProgress, PoseStack matrices, MultiBufferSource vertexConsumers, int light, int overlay, Vec3 cameraPos) {
+  public void render(AnalogClockFace clockFace, float tickProgress, PoseStack matrices, MultiBufferSource vertexConsumers, int light, int overlay /*? if > 1.21.1 >> ') {' */ , Vec3 cameraPos) {
     matrices.pushPose();
 
     orientClockFace(matrices, clockFace.getBlockState());
@@ -83,7 +83,10 @@ public class AnalogClockFaceRenderer extends AnimatedEntityRenderer<AnalogClockF
         .relative(facingDirection, 0.5)
         .relative(shiftDirection, isFront ? 0 : (double) 14 / 16);
 
+    //? if > 1.21.1
     matrices.translate(clockFaceCenter);
+    //? if <= 1.21.1
+    //matrices.translate(clockFaceCenter.x, clockFaceCenter.y, clockFaceCenter.z);
     matrices.rotateAround(Axis.YP.rotationDegrees(rotation), 0, 0, 0);
   }
 
