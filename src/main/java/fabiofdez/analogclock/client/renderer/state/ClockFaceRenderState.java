@@ -1,12 +1,11 @@
 package fabiofdez.analogclock.client.renderer.state;
 
-//? >= 1.21.11 {
-
-/*import fabiofdez.analogclock.entity.AnalogClockFace;
-import net.minecraft.client.renderer.blockentity.state.BlockEntityRenderState;
+import fabiofdez.analogclock.entity.AnalogClockFace;
+//? >= 1.21.11
+//import net.minecraft.client.renderer.blockentity.state.BlockEntityRenderState;
 import net.minecraft.world.level.block.state.BlockState;
 
-public class ClockFaceRenderState extends BlockEntityRenderState {
+public class ClockFaceRenderState /*? if >= 1.21.11 >> '{' */ /*extends BlockEntityRenderState  */{
   private BlockState blockState;
   private int hourFrame;
   private int minuteFrame;
@@ -29,4 +28,3 @@ public class ClockFaceRenderState extends BlockEntityRenderState {
     return minuteFrame;
   }
 }
-*///? }

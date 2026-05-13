@@ -1,6 +1,8 @@
 {
   "block.analogclock.amethyst_pendulum": "Amethyst Pendulum",
   "block.analogclock.analog_clock": "Analog Clock",
+  "subtitles.analogclock.chime_resonate": "Clock chime resonating",
+  "subtitles.analogclock.clock_chime": "Clock chime ringing",
   "subtitles.analogclock.clock_tick": "Pendulum ticking",
   "subtitles.analogclock.clock_wind": "Clock winding up"
 }

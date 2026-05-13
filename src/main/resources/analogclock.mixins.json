@@ -7,8 +7,10 @@
     "defaultRequire": 1
   },
   "mixins": [
-    "RegistryRemapMixin",
-    "IdRemapMixin"
+    "BellEntityMixin",
+    "BrushItemMixin",
+    "IdRemapMixin",
+    "RegistryRemapMixin"
   ],
   "client": []
 }

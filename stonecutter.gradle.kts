@@ -44,8 +44,13 @@ stonecutter parameters {
 
 	replacements {
 		string(current.parsed >= "1.21.11") {
-			replace("ResourceLocation", "Identifier")
+			replace("net.minecraft.Util", "net.minecraft.util.Util")
 			replace("world.level.GameRules", "world.level.gamerules.GameRules")
+			replace("blockrenderlayer.v1.BlockRenderLayerMap", "client.rendering.v1.BlockRenderLayerMap")
+			replace("BlockRenderLayerMap.INSTANCE.putBlock", "BlockRenderLayerMap.putBlock")
+			replace("renderer.RenderType", "renderer.rendertype.RenderType")
+			replace("ARGB.lerp", "ARGB.srgbLerp")
+			replace("ResourceLocation", "Identifier")
 		}
 
 		string(current.parsed >= "1.21.9") {

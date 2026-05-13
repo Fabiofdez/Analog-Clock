@@ -1,0 +1,7 @@
+{
+  "variants": {
+    "": {
+      "model": "analogclock:block/clock_face"
+    }
+  }
+}

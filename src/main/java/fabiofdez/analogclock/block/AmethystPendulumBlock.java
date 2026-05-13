@@ -16,7 +16,6 @@ import net.minecraft.world.level.LevelReader;
 import net.minecraft.world.level.ScheduledTickAccess;
 import net.minecraft.util.RandomSource;
 //? }
-import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.EntityBlock;
 import net.minecraft.world.level.block.HorizontalDirectionalBlock;
@@ -24,8 +23,6 @@ import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.entity.BlockEntityTicker;
 import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.state.BlockState;
-import net.minecraft.world.level.block.state.StateDefinition;
-import net.minecraft.world.level.block.state.properties.IntegerProperty;
 import net.minecraft.world.phys.shapes.CollisionContext;
 import net.minecraft.world.phys.shapes.Shapes;
 import net.minecraft.world.phys.shapes.VoxelShape;
@@ -33,11 +30,9 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 public class AmethystPendulumBlock extends DirectionalAlignedBlock implements EntityBlock {
-  public static final IntegerProperty DAY_PHASE;
 
   public AmethystPendulumBlock(Properties properties) {
     super(properties);
-    this.registerDefaultState(this.defaultBlockState().setValue(DAY_PHASE, 0));
   }
 
   protected boolean mayPlaceUnder(BlockState state, BlockGetter blockGetter, BlockPos pos) {
@@ -54,12 +49,6 @@ public class AmethystPendulumBlock extends DirectionalAlignedBlock implements En
       return super.canSurvive(state, level, pos);
     }
     return false;
-  }
-
-  @Override
-  protected void createBlockStateDefinition(StateDefinition.Builder<Block, BlockState> builder) {
-    super.createBlockStateDefinition(builder);
-    builder.add(DAY_PHASE);
   }
 
   @Override
@@ -88,10 +77,10 @@ public class AmethystPendulumBlock extends DirectionalAlignedBlock implements En
   }
 
   @Override
-  //? > 1.21.1
+      //? > 1.21.1
   protected @NotNull BlockState updateShape(BlockState state, LevelReader level, ScheduledTickAccess tickAccess, BlockPos pos, Direction direction, BlockPos pos2, BlockState state2, RandomSource rand) {
-  //? <= 1.21.1
-  //protected @NotNull BlockState updateShape(BlockState state, Direction direction, BlockState state2, LevelAccessor level, BlockPos pos, BlockPos pos2) {
+    //? <= 1.21.1
+    //protected @NotNull BlockState updateShape(BlockState state, Direction direction, BlockState state2, LevelAccessor level, BlockPos pos, BlockPos pos2) {
     if (!state.canSurvive(level, pos)) return Blocks.AIR.defaultBlockState();
 
     //? > 1.21.1
@@ -115,9 +104,5 @@ public class AmethystPendulumBlock extends DirectionalAlignedBlock implements En
     if (level.isClientSide() || blockEntityType != ModBlockEntities.PENDULUM_ENTITY.get()) return null;
 
     return PendulumEntity::tick;
-  }
-
-  static {
-    DAY_PHASE = IntegerProperty.create("day_phase", 0, 23);
   }
 }

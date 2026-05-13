@@ -2,24 +2,34 @@
 	"format_version": "1.21.11",
 	"credit": "Made with Blockbench",
 	"textures": {
-		"particle": "analogclock:block/clock_back",
-		"clock-back": "analogclock:block/clock_back",
-		"clock-face": "analogclock:block/clock_face",
-		"clock-frame": "analogclock:block/clock_frame"
+		"particle": "analogclock:block/clock_frame_back",
+		"clock_frame_back": "analogclock:block/clock_frame_back",
+		"clock_frame_front": "analogclock:block/clock_frame_front",
+		"clock_frame_sides": "analogclock:block/clock_frame_sides",
+		"clock_dial": "analogclock:block/clock_dial"
 	},
 	"elements": [
+		{
+			"name": "clock-dial",
+			"from": [0, 0, 0.01],
+			"to": [16, 16, 0.01],
+			"rotation": {"angle": 0, "axis": "y", "origin": [8, 8, 0.01]},
+			"faces": {
+				"north": {"uv": [0, 0, 16, 16], "texture": "#clock_dial", "tintindex": 1}
+			}
+		},
 		{
 			"name": "clock-base",
 			"from": [0, 0, 0],
 			"to": [16, 16, 2],
-			"rotation": {"angle": 0, "axis": "y", "origin": [8, 8, -6]},
+			"rotation": {"angle": 0, "axis": "y", "origin": [8, 8, 1]},
 			"faces": {
-				"north": {"uv": [0, 0, 16, 16], "texture": "#clock-face"},
-				"east": {"uv": [4, 0, 6, 16], "texture": "#clock-frame"},
-				"south": {"uv": [0, 0, 16, 16], "texture": "#clock-back"},
-				"west": {"uv": [6, 0, 8, 16], "texture": "#clock-frame"},
-				"up": {"uv": [2, 16, 0, 0], "rotation": 90, "texture": "#clock-frame"},
-				"down": {"uv": [2, 16, 4, 0], "rotation": 270, "texture": "#clock-frame"}
+				"north": {"uv": [0, 0, 16, 16], "texture": "#clock_frame_front"},
+				"east": {"uv": [4, 0, 6, 16], "texture": "#clock_frame_sides"},
+				"south": {"uv": [0, 0, 16, 16], "texture": "#clock_frame_back"},
+				"west": {"uv": [6, 0, 8, 16], "texture": "#clock_frame_sides"},
+				"up": {"uv": [2, 16, 0, 0], "rotation": 90, "texture": "#clock_frame_sides"},
+				"down": {"uv": [2, 16, 4, 0], "rotation": 270, "texture": "#clock_frame_sides"}
 			}
 		}
 	]

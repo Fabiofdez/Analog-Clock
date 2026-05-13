@@ -21,6 +21,8 @@ public class ModSounds {
 
   public static Supplier<SoundEvent> CLOCK_WIND = register("clock_wind");
   public static Supplier<SoundEvent> CLOCK_TICK = register("clock_tick");
+  public static Supplier<SoundEvent> CLOCK_CHIME = register("clock_chime");
+  public static Supplier<SoundEvent> CHIME_RESONATE = register("chime_resonate");
 
   //? fabric {
   private static Supplier<SoundEvent> register(String id) {

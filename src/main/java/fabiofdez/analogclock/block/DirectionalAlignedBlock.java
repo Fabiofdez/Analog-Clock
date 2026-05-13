@@ -8,9 +8,11 @@ import net.minecraft.world.item.context.BlockPlaceContext;
 import net.minecraft.world.level.BlockGetter;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.HorizontalDirectionalBlock;
+import net.minecraft.world.level.block.SoundType;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.StateDefinition;
 import net.minecraft.world.level.block.state.properties.EnumProperty;
+import net.minecraft.world.level.material.PushReaction;
 import net.minecraft.world.phys.Vec3;
 import net.minecraft.world.phys.shapes.Shapes;
 import net.minecraft.world.phys.shapes.VoxelShape;
@@ -20,15 +22,10 @@ public abstract class DirectionalAlignedBlock extends HorizontalDirectionalBlock
   public static final EnumProperty<Alignment> ALIGNMENT;
 
   protected DirectionalAlignedBlock(Properties properties) {
-    super(properties);
+    super(properties.sound(SoundType.COPPER).instabreak().pushReaction(PushReaction.DESTROY).noOcclusion());
 
-    BlockState initialState = this
-        .getStateDefinition()
-        .any();
-
-    this.registerDefaultState(initialState
-        .setValue(FACING, Direction.NORTH)
-        .setValue(ALIGNMENT, Alignment.BACK));
+    BlockState initialState = this.getStateDefinition().any();
+    this.registerDefaultState(initialState.setValue(FACING, Direction.NORTH).setValue(ALIGNMENT, Alignment.BACK));
   }
 
   @Override
@@ -69,8 +66,8 @@ public abstract class DirectionalAlignedBlock extends HorizontalDirectionalBlock
     Vec3i unitShift = shiftDirection
         //? > 1.21.1
         .getUnitVec3i();
-        //? <= 1.21.1
-        //.getNormal();
+    //? <= 1.21.1
+    //.getNormal();
 
     VoxelShape FACING_X = Block.box(0, 0, 0, thickness, 16, 16);
     VoxelShape FACING_Z = Block.box(0, 0, 0, 16, 16, thickness);

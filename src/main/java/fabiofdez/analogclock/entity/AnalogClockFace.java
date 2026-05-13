@@ -2,6 +2,8 @@ package fabiofdez.analogclock.entity;
 
 import fabiofdez.analogclock.ModBlockEntities;
 import fabiofdez.analogclock.ModSounds;
+import fabiofdez.analogclock.block.AnalogClockBlock;
+import fabiofdez.analogclock.color.ClockFaceStyle;
 import fabiofdez.analogclock.util.FrameInterpolator;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.HolderLookup;
@@ -12,6 +14,7 @@ import net.minecraft.network.protocol.game.ClientboundBlockEntityDataPacket;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.sounds.SoundSource;
 import net.minecraft.util.RandomSource;
+import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
@@ -21,6 +24,8 @@ import net.minecraft.world.level.storage.ValueOutput;
 *///? }
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
+
+import java.util.UUID;
 
 public class AnalogClockFace extends BlockEntity {
   public static final long DAY_LENGTH_TICKS = 24000;
@@ -34,12 +39,16 @@ public class AnalogClockFace extends BlockEntity {
   public static final int NUM_CLOCK_FRAMES = CLOCK_HAND_FRAMES * HOUR_FRAMES_RADIX;
 
   private static final int INITIAL_CLOCK_FRAME = 3 * UNIT_HOUR_FRAMES * HOUR_FRAMES_RADIX; // 3:00
+  private static final int BRUSH_DURATION_TICKS = 15;
 
   private final ClockHandsInterpolator ANIMATOR;
   private int currentFrame;
 
-  public AnalogClockFace(BlockPos blockPos, BlockState blockState) {
-    super(ModBlockEntities.CLOCK_FACE_ENTITY.get(), blockPos, blockState);
+  private String brushingPlayerUUID = null;
+  private int brushEventTicks = 0;
+
+  public AnalogClockFace(BlockPos pos, BlockState state) {
+    super(ModBlockEntities.CLOCK_FACE_ENTITY.get(), pos, state);
 
     currentFrame = INITIAL_CLOCK_FRAME;
     ANIMATOR = new ClockHandsInterpolator();
@@ -47,6 +56,8 @@ public class AnalogClockFace extends BlockEntity {
 
   public static void tick(Level level, BlockPos pos, BlockState state, BlockEntity entity) {
     if (level.isClientSide() || !(entity instanceof AnalogClockFace clockFace)) return;
+
+    handleBrushing(clockFace, level, pos, state);
 
     int nextFrame;
     if (level.dimension() == Level.OVERWORLD) {
@@ -132,31 +143,47 @@ public class AnalogClockFace extends BlockEntity {
     level.playSound(null, pos, ModSounds.CLOCK_WIND.get(), SoundSource.BLOCKS, volume, pitch);
   }
 
-  @Override
-      //? if <= 1.21.5
-  protected void saveAdditional(CompoundTag output, HolderLookup.Provider registryLookup) {
-      //? if >= 1.21.11
-  //protected void saveAdditional(ValueOutput output) {
-    if (ANIMATOR.isInitialized()) {
-      output.putInt("clockFrame", currentFrame);
+  private static void handleBrushing(AnalogClockFace clockFace, Level level, BlockPos pos, BlockState state) {
+    if (clockFace.brushingPlayerUUID == null) return;
+
+    Player player = level.getPlayerByUUID(UUID.fromString(clockFace.brushingPlayerUUID));
+    if (player == null) return;
+
+    if (!player.isUsingItem()) {
+      clockFace.brushingPlayerUUID = null;
+      return;
     }
 
-    //? if <= 1.21.5
-    super.saveAdditional(output, registryLookup);
-    //? if >= 1.21.11
-    //super.saveAdditional(output);
+    clockFace.brushEventTicks++;
+
+    if (clockFace.brushEventTicks > BRUSH_DURATION_TICKS) {
+      level.setBlockAndUpdate(pos, state.setValue(AnalogClockBlock.FACE_TINT, ClockFaceStyle.FACE_NO_DYE));
+      clockFace.brushingPlayerUUID = null;
+    }
+  }
+
+  public void startBrushing(Player player) {
+    brushingPlayerUUID = player.getStringUUID();
+    brushEventTicks = 0;
   }
 
   @Override
-      //? if <= 1.21.5 {
-  protected void loadAdditional(CompoundTag input, HolderLookup.Provider registryLookup) {
-    super.loadAdditional(input, registryLookup);
-    //? }
+      //? if <= 1.21.5
+  protected void saveAdditional(CompoundTag output, HolderLookup.Provider registryLookup) {
+    //? if >= 1.21.11
+    //protected void saveAdditional(ValueOutput output) {
 
-      //? if >= 1.21.11 {
-  /*protected void loadAdditional(ValueInput input) {
-    super.loadAdditional(input);
-    *///? }
+    if (ANIMATOR.isInitialized()) output.putInt("clockFrame", currentFrame);
+    super.saveAdditional(output /*? if <= 1.21.5 >> ');' */, registryLookup);
+  }
+
+  @Override
+      //? if <= 1.21.5
+  protected void loadAdditional(CompoundTag input, HolderLookup.Provider registryLookup) {
+    //? if >= 1.21.11
+    //protected void loadAdditional(ValueInput input) {
+
+    super.loadAdditional(input /*? if <= 1.21.5 >> ');' */, registryLookup);
 
     //? if > 1.21.1
     input.getInt("clockFrame").ifPresent((num) -> currentFrame = num);

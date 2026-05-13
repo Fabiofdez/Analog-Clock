@@ -1,13 +1,13 @@
 package fabiofdez.analogclock.entity;
 
 import fabiofdez.analogclock.ModBlockEntities;
-import fabiofdez.analogclock.ModBlocks;
 import fabiofdez.analogclock.ModSounds;
 import fabiofdez.analogclock.block.AmethystPendulumBlock;
 import fabiofdez.analogclock.color.GemstoneColor;
 import fabiofdez.analogclock.util.FrameInterpolator;
 import fabiofdez.analogclock.util.GravityInterpolator;
 import net.minecraft.core.BlockPos;
+import net.minecraft.core.Direction;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.protocol.Packet;
@@ -18,6 +18,7 @@ import net.minecraft.sounds.SoundSource;
 import net.minecraft.util.RandomSource;
 import net.minecraft.world.level.GameRules;
 import net.minecraft.world.level.Level;
+import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
 //? if >= 1.21.11 {
@@ -27,14 +28,26 @@ import net.minecraft.world.level.storage.ValueOutput;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
+import java.util.List;
+
 public class PendulumEntity extends BlockEntity {
   public static final int NUM_DAY_SUBPHASES = 24;
-  public static final long TICKS_PER_DAY_SUBPHASE = AnalogClockFace.DAY_LENGTH_TICKS / NUM_DAY_SUBPHASES;
+  public static final long DAY_SUBPHASE_TICKS = AnalogClockFace.DAY_LENGTH_TICKS / NUM_DAY_SUBPHASES;
+  public static final long CHIME_PHASE_TICKS = AnalogClockFace.HOUR_LENGTH_TICKS * 6;
 
   public static final int NUM_PENDULUM_FRAMES = 12;
   public static final int PENDULUM_FRAME_TICKS = 3;
-  public static final int TICKS_PER_PENDULUM_PERIOD = NUM_PENDULUM_FRAMES * PENDULUM_FRAME_TICKS;
+  public static final int PENDULUM_PERIOD_TICKS = NUM_PENDULUM_FRAMES * PENDULUM_FRAME_TICKS;
   public static final int PENDULUM_HALF_PHASE = NUM_PENDULUM_FRAMES / 2;
+  public static final int PENDULUM_LOWEST_FRAME = PENDULUM_HALF_PHASE / 2;
+
+  public static final int CHIME_BEAT_TICKS = PENDULUM_FRAME_TICKS * 4;
+  public static final int CHIME_DURATION_TICKS = 4 * CHIME_BEAT_TICKS;
+
+  private static final float G = 1F;
+  private static final float C = 1.33F;
+  private static final float D = 1.5F;
+  private static final float E = 1.68F;
 
   private final GravityInterpolator SWING_INTERPOLATOR;
   private int swingFrameOffset = -1;
@@ -45,6 +58,29 @@ public class PendulumEntity extends BlockEntity {
   private int currentColorPhase = 0;
   private int alternateTint = GemstoneColor.NO_COLOR;
   private boolean inOverworld = true;
+
+  private boolean isChimeRinging = false;
+  private int chimeTicks = 0;
+
+  enum ChimeJingle {
+    SUNRISE(E, C, D, G),
+    NOON(C, D, E, C),
+    SUNSET(E, D, C, G),
+    MIDNIGHT(G, D, E, C);
+
+    final List<Float> notes;
+
+    ChimeJingle(Float... notes) {
+      this.notes = List.of(notes);
+    }
+
+    static ChimeJingle get(int index) {
+      ChimeJingle[] jingles = values();
+      if (index >= jingles.length) return jingles[0];
+
+      return jingles[index];
+    }
+  }
 
   public PendulumEntity(BlockPos pos, BlockState state) {
     super(ModBlockEntities.PENDULUM_ENTITY.get(), pos, state);
@@ -62,14 +98,16 @@ public class PendulumEntity extends BlockEntity {
 
     int nextColorPhase;
     if (level.dimension() == Level.OVERWORLD) {
-      nextColorPhase = calculateNextColorPhase(dayTime, pendulum);
+      nextColorPhase = calculateNextColorPhase(pendulum, dayTime);
       pendulum.inOverworld = true;
     } else {
-      nextColorPhase = getRandomColorPhase(level, pendulum);
+      nextColorPhase = getRandomColorPhase(pendulum, level);
       pendulum.inOverworld = false;
     }
 
-    int nextSwingFrame = calculateNextSwingFrame(level, dayTime, pendulum);
+    int nextSwingFrame = calculateNextSwingFrame(pendulum, level, dayTime);
+    handleChime(pendulum, level, pos);
+
     if (!pendulum.differentFrom(nextSwingFrame, nextColorPhase)) return;
 
     if (pendulum.currentSwingFrame != nextSwingFrame && phaseExtreme(nextSwingFrame)) {
@@ -100,10 +138,10 @@ public class PendulumEntity extends BlockEntity {
   }
 
   private boolean settled() {
-    return settled(currentSwingFrame);
+    return !SWING_INTERPOLATOR.inProgress() && settled(currentSwingFrame);
   }
 
-  private static int calculateNextSwingFrame(Level level, long dayTime, PendulumEntity pendulum) {
+  private static int calculateNextSwingFrame(PendulumEntity pendulum, Level level, long dayTime) {
     GameRules rules = ((ServerLevel) level).getGameRules();
     //? if <= 1.21.5
     boolean doDaylightCycle = rules.getRule(GameRules.RULE_DAYLIGHT).get();
@@ -136,7 +174,7 @@ public class PendulumEntity extends BlockEntity {
     return nextFrame;
   }
 
-  private static int calculateNextColorPhase(long dayTime, PendulumEntity pendulum) {
+  private static int calculateNextColorPhase(PendulumEntity pendulum, long dayTime) {
     PhaseTintInterpolator animator = pendulum.COLOR_PHASE_ANIMATOR;
     if (animator.inProgress()) return animator.step();
 
@@ -149,7 +187,7 @@ public class PendulumEntity extends BlockEntity {
     return nextPhase;
   }
 
-  private static int getRandomColorPhase(Level level, PendulumEntity pendulum) {
+  private static int getRandomColorPhase(PendulumEntity pendulum, Level level) {
     PhaseTintInterpolator animator = pendulum.COLOR_PHASE_ANIMATOR;
     if (animator.inProgress()) return animator.step();
 
@@ -166,15 +204,20 @@ public class PendulumEntity extends BlockEntity {
   }
 
   private static void initSwingOffset(PendulumEntity pendulum, long dayTime) {
-    pendulum.swingFrameOffset = Math.toIntExact(dayTime % TICKS_PER_PENDULUM_PERIOD);
+    pendulum.swingFrameOffset = Math.toIntExact(dayTime % PENDULUM_PERIOD_TICKS);
   }
 
   private static boolean settled(int swingFrame) {
-    return swingFrame == (PENDULUM_HALF_PHASE / 2);
+    return (swingFrame % PENDULUM_HALF_PHASE) == PENDULUM_LOWEST_FRAME;
   }
 
   private static boolean phaseExtreme(int swingFrame) {
     return swingFrame == 0 || swingFrame == PENDULUM_HALF_PHASE;
+  }
+
+  private static boolean leftOfCenter(int swingFrame) {
+    if (swingFrame <= PENDULUM_HALF_PHASE) return swingFrame < PENDULUM_LOWEST_FRAME;
+    return PENDULUM_HALF_PHASE - (swingFrame % PENDULUM_HALF_PHASE) < PENDULUM_LOWEST_FRAME;
   }
 
   private static int toSwingFrame(long offsetDayTime) {
@@ -183,22 +226,67 @@ public class PendulumEntity extends BlockEntity {
   }
 
   private static int toColorPhase(long dayTime) {
-    return (int) (dayTime / TICKS_PER_DAY_SUBPHASE) % NUM_DAY_SUBPHASES;
-  }
-
-  private static void playTickTock(PendulumEntity pendulum, Level level, BlockPos pos) {
-    float pitch = pendulum.currentSwingFrame == 0 ? 50F : 25F;
-    level.playSound(null, pos, ModSounds.CLOCK_TICK.get(), SoundSource.BLOCKS, 1F, pitch);
+    return (int) (dayTime / DAY_SUBPHASE_TICKS) % NUM_DAY_SUBPHASES;
   }
 
   private boolean differentFrom(int swingFrame, int colorPhase) {
     return swingFrame != currentSwingFrame || colorPhase != currentColorPhase;
   }
 
+  private static void playTickTock(PendulumEntity pendulum, Level level, BlockPos pos) {
+    float pitch = leftOfCenter(pendulum.currentSwingFrame) ? 1.15F : 0.85F;
+    level.playSound(null, pos, ModSounds.CLOCK_TICK.get(), SoundSource.BLOCKS, 0.8F, pitch);
+  }
+
+  private static void handleChime(PendulumEntity pendulum, Level level, BlockPos pos) {
+    long offsetDayTime = level.getDayTime() - pendulum.swingFrameOffset;
+    if (offsetDayTime < 0) offsetDayTime += AnalogClockFace.DAY_LENGTH_TICKS;
+    offsetDayTime %= AnalogClockFace.DAY_LENGTH_TICKS;
+
+    long chimePhaseTime = offsetDayTime % CHIME_PHASE_TICKS;
+    if (chimePhaseTime >= CHIME_DURATION_TICKS) {
+      pendulum.isChimeRinging = false;
+      pendulum.chimeTicks = 0;
+      return;
+    }
+
+    if (pendulum.isChimeRinging) {
+      pendulum.chimeTicks++;
+    } else {
+      pendulum.isChimeRinging = true;
+      pendulum.chimeTicks = (int) chimePhaseTime;
+    }
+
+    playChime(pendulum, level, pos, offsetDayTime);
+  }
+
+  private static void playChime(PendulumEntity pendulum, Level level, BlockPos pos, long dayTime) {
+    if (pendulum.chimeTicks % CHIME_BEAT_TICKS != 0) return;
+
+    Direction pendulumFacing = level.getBlockState(pos).getValue(AmethystPendulumBlock.FACING);
+    BlockPos behindPendulum = pos.relative(pendulumFacing.getOpposite());
+    BlockState behindPendulumState = level.getBlockState(behindPendulum);
+    if (!behindPendulumState.is(Blocks.BELL)) return;
+
+    int chimePhase = (int) (dayTime / CHIME_PHASE_TICKS);
+    int chimeBeat = pendulum.chimeTicks / CHIME_BEAT_TICKS;
+
+    List<Float> chimeNotes = ChimeJingle.get(chimePhase).notes;
+    float pitch = chimeNotes.get(chimeBeat);
+
+    level.playSound(null, pos, ModSounds.CLOCK_CHIME.get(), SoundSource.BLOCKS, 1F, pitch);
+    level.playSound(null, pos, ModSounds.CHIME_RESONATE.get(), SoundSource.BLOCKS, 1.4F, pitch);
+
+    Direction chimeStrike = level
+        .getRandom()
+        .nextBoolean() ? pendulumFacing.getClockWise() : pendulumFacing.getCounterClockWise();
+    level.blockEvent(behindPendulum, behindPendulumState.getBlock(), 2, chimeStrike.get3DDataValue());
+  }
+
   @Override
-    //? if <= 1.21.5
+      //? if <= 1.21.5
   protected void saveAdditional(CompoundTag output, HolderLookup.Provider registryLookup) {
-    //? if >= 1.21.11
+      //? if >= 1.21.11
   //protected void saveAdditional(ValueOutput output) {
     output.putBoolean("swinging", swinging);
     output.putBoolean("inOverworld", inOverworld);
@@ -217,7 +305,7 @@ public class PendulumEntity extends BlockEntity {
   }
 
   @Override
-    //? if <= 1.21.5 {
+      //? if <= 1.21.5 {
   protected void loadAdditional(CompoundTag input, HolderLookup.Provider registryLookup) {
     super.loadAdditional(input, registryLookup);
 
@@ -231,12 +319,12 @@ public class PendulumEntity extends BlockEntity {
 
     //? }
 
-    //? if >= 1.21.11 {
+      //? if >= 1.21.11 {
   /*protected void loadAdditional(ValueInput input) {
     super.loadAdditional(input);
     swinging = input.getBooleanOr("swinging", swinging);
     inOverworld = input.getBooleanOr("inOverworld", inOverworld);
-  *///? }
+    *///? }
 
     //? if > 1.21.1 {
     input.getInt("alternateTint").ifPresent((val) -> alternateTint = val);

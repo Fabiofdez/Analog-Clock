@@ -1,37 +1,33 @@
 package fabiofdez.analogclock.client.renderer;
 
 import com.mojang.blaze3d.vertex.PoseStack;
-import com.mojang.math.Axis;
 import fabiofdez.analogclock.block.AnalogClockBlock;
-import fabiofdez.analogclock.block.state.properties.Alignment;
+import fabiofdez.analogclock.client.renderer.state.ClockFaceRenderState;
+import fabiofdez.analogclock.color.ClockFaceStyle;
 import fabiofdez.analogclock.entity.AnalogClockFace;
 import net.minecraft.client.renderer.blockentity.BlockEntityRendererProvider;
-//? if <= 1.21.5 {
-import com.mojang.blaze3d.vertex.VertexConsumer;
-import net.minecraft.client.renderer.MultiBufferSource;
-import net.minecraft.client.renderer.RenderType;
-//? }
 //? if >= 1.21.11 {
-/*import net.minecraft.client.renderer.SubmitNodeCollector;
-import fabiofdez.analogclock.client.renderer.state.ClockFaceRenderState;
-import net.minecraft.client.renderer.feature.ModelFeatureRenderer;
-import net.minecraft.client.renderer.state.CameraRenderState;
-import net.minecraft.client.renderer.rendertype.RenderType;
-import net.minecraft.client.renderer.rendertype.RenderTypes;
-*///? }
-import net.minecraft.core.Direction;
-import net.minecraft.resources.ResourceLocation;
-import net.minecraft.world.level.block.state.BlockState;
+/*import net.minecraft.client.renderer.feature.ModelFeatureRenderer;
 import net.minecraft.world.phys.Vec3;
+import org.jspecify.annotations.NonNull;
+*///? }
+import net.minecraft.resources.ResourceLocation;
 
 //? if <= 1.21.5
 public class AnalogClockFaceRenderer extends AnimatedEntityRenderer<AnalogClockFace> {
-//? if >= 1.21.11
+  //? if >= 1.21.11
 //public class AnalogClockFaceRenderer extends AnimatedEntityRenderer<AnalogClockFace, ClockFaceRenderState> {
-  private static final ResourceLocation HOUR_TEXTURE = getTexture("hour_hand");
-  private static final ResourceLocation MINUTE_TEXTURE = getTexture("minute_hand");
+  private static final ResourceLocation DIAL_MARKS_TEXTURE = getTexture("dial_marks");
+  private static final ResourceLocation DIAL_MARKS_PLATED_TEXTURE = getTexture("dial_marks_plated");
 
-  private static final double CLOCK_HAND_OFFSET = 0.1 / 16;
+  private static final ResourceLocation HOUR_TEXTURE = getTexture("hour_hand");
+  private static final ResourceLocation HOUR_PLATED_TEXTURE = getTexture("hour_hand_plated");
+
+  private static final ResourceLocation MINUTE_TEXTURE = getTexture("minute_hand");
+  private static final ResourceLocation MINUTE_PLATED_TEXTURE = getTexture("minute_hand_plated");
+
+  private static final double CLOCK_MODEL_THICKNESS = 2.0 / 16;
+  private static final double CLOCK_HAND_OFFSET = 0.01 / 16;
 
   public AnalogClockFaceRenderer(BlockEntityRendererProvider.Context ignoredCtx) {
   }
@@ -43,82 +39,46 @@ public class AnalogClockFaceRenderer extends AnimatedEntityRenderer<AnalogClockF
   }
 
   @Override
-  public void extractRenderState(AnalogClockFace clockFace, ClockFaceRenderState renderState, float tickProgress, Vec3 cameraPos, ModelFeatureRenderer.CrumblingOverlay crumblingOverlay) {
+  public void extractRenderState(AnalogClockFace clockFace, ClockFaceRenderState renderState, float tickProgress, @NonNull Vec3 cameraPos, ModelFeatureRenderer.CrumblingOverlay crumblingOverlay) {
     super.extractRenderState(clockFace, renderState, tickProgress, cameraPos, crumblingOverlay);
     renderState.extractStateFrom(clockFace);
-  }
-
-  @Override
-  public void submit(ClockFaceRenderState renderState, PoseStack matrices, SubmitNodeCollector queue, CameraRenderState cameraState) {
-    matrices.pushPose();
-
-    orientClockFace(matrices, renderState.getBlockState());
-    drawClockHand(MINUTE_TEXTURE, renderState.getMinuteFrame(), matrices, queue, renderState.lightCoords);
-    drawClockHand(HOUR_TEXTURE, renderState.getHourFrame(), matrices, queue, renderState.lightCoords);
-
-    matrices.popPose();
   }
   *///? }
 
   //? if <= 1.21.5 {
   @Override
-  public void render(AnalogClockFace clockFace, float tickProgress, PoseStack matrices, MultiBufferSource vertexConsumers, int light, int overlay /*? if > 1.21.1 >> ') {' */ , Vec3 cameraPos) {
-    matrices.pushPose();
-
-    orientClockFace(matrices, clockFace.getBlockState());
-    drawClockHand(MINUTE_TEXTURE, clockFace.getMinuteFrame(), matrices, vertexConsumers, light);
-    drawClockHand(HOUR_TEXTURE, clockFace.getHourFrame(), matrices, vertexConsumers, light);
-
-    matrices.popPose();
+  protected Object parseRenderState(AnalogClockFace clockFace) {
+    ClockFaceRenderState renderState = new ClockFaceRenderState();
+    renderState.extractStateFrom(clockFace);
+    return renderState;
   }
   //? }
 
-  private static void orientClockFace(PoseStack matrices, BlockState state) {
-    boolean isFront = state.getValue(AnalogClockBlock.ALIGNMENT) == Alignment.FRONT;
-    Direction facingDirection = state.getValue(AnalogClockBlock.FACING);
-    Direction shiftDirection = isFront ? facingDirection : facingDirection.getOpposite();
-    float rotation = getModelRotation(facingDirection);
+  @Override
+  protected void submitRender(Object renderState, RenderContext ctx) {
+    if (!(renderState instanceof ClockFaceRenderState clockFace)) return;
 
-    Vec3 clockFaceCenter = new Vec3(0.5, 0.5, 0.5)
-        .relative(facingDirection, 0.5)
-        .relative(shiftDirection, isFront ? 0 : (double) 14 / 16);
+    int numFrames = AnalogClockFace.CLOCK_HAND_FRAMES;
+    PoseStack matrices = ctx.matrices();
+    matrices.pushPose();
 
-    //? if > 1.21.1
-    matrices.translate(clockFaceCenter);
-    //? if <= 1.21.1
-    //matrices.translate(clockFaceCenter.x, clockFaceCenter.y, clockFaceCenter.z);
-    matrices.rotateAround(Axis.YP.rotationDegrees(rotation), 0, 0, 0);
-  }
+    ClockFaceStyle.Plating plating = clockFace.getBlockState().getValue(AnalogClockBlock.HANDS_PLATING);
+    boolean hasPlating = plating != ClockFaceStyle.HANDS_NO_PLATING;
+    int tint = plating.getColor();
 
-  //? if <= 1.21.5
-  private static void drawClockHand(ResourceLocation texture, int frameOffset, PoseStack matrices, MultiBufferSource vertexConsumers, int light) {
-  //? if >= 1.21.11
-  //private static void drawClockHand(Identifier texture, int frameOffset, PoseStack matrices, SubmitNodeCollector queue, int light) {
+    ResourceLocation dialMarksTexture = hasPlating ? DIAL_MARKS_PLATED_TEXTURE : DIAL_MARKS_TEXTURE;
+    ResourceLocation minuteHandTexture = hasPlating ? MINUTE_PLATED_TEXTURE : MINUTE_TEXTURE;
+    ResourceLocation hourHandTexture = hasPlating ? HOUR_PLATED_TEXTURE : HOUR_TEXTURE;
+
+    orientWithAlignment(matrices, clockFace.getBlockState(), (isFront) -> 0.5 + (isFront ? 0 : -CLOCK_MODEL_THICKNESS));
+    drawStaticAsset(dialMarksTexture, tint, ctx);
+
     matrices.translate(0, 0, CLOCK_HAND_OFFSET);
-    //? if <= 1.21.5
-    RenderType renderType = RenderType.entityCutoutNoCull(texture);
-    //? if >= 1.21.11
-    //RenderType renderType = RenderTypes.entityCutoutNoCull(texture);
+    drawAnimatedAsset(minuteHandTexture, tint, clockFace.getMinuteFrame(), numFrames, ctx);
 
-    //? if <= 1.21.5 {
-    PoseStack.Pose lastPose = matrices.last();
-    VertexConsumer buf = vertexConsumers.getBuffer(renderType);
-    drawQuad(buf, NO_TINT, frameOffset, AnalogClockFace.CLOCK_HAND_FRAMES, lastPose.pose(), light);
-    //? }
+    matrices.translate(0, 0, CLOCK_HAND_OFFSET);
+    drawAnimatedAsset(hourHandTexture, tint, clockFace.getHourFrame(), numFrames, ctx);
 
-    //? if >= 1.21.11 {
-    /*queue.submitCustomGeometry(
-        matrices,
-        renderType,
-        (lastPose, buf) -> drawQuad(
-            buf,
-            NO_TINT,
-            frameOffset,
-            AnalogClockFace.CLOCK_HAND_FRAMES,
-            lastPose.pose(),
-            light
-        )
-    );
-    *///? }
+    matrices.popPose();
   }
 }

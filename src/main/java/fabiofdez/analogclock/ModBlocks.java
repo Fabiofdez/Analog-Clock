@@ -2,20 +2,26 @@ package fabiofdez.analogclock;
 
 import fabiofdez.analogclock.block.AnalogClockBlock;
 import fabiofdez.analogclock.block.AmethystPendulumBlock;
-//? fabric {
-import net.fabricmc.fabric.api.itemgroup.v1.ItemGroupEvents;
-import net.minecraft.core.Registry;
-import net.minecraft.core.registries.BuiltInRegistries;
-import net.minecraft.resources.ResourceKey;
-import java.util.function.Supplier;
-//? }
+import fabiofdez.analogclock.block.ClockFaceBlock;
 import net.minecraft.world.item.BlockItem;
 import net.minecraft.world.item.CreativeModeTabs;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.level.block.Block;
-import net.minecraft.world.level.block.SoundType;
 import net.minecraft.world.level.block.state.BlockBehaviour;
-import net.minecraft.world.level.material.PushReaction;
+
+import java.util.function.Function;
+
+//? fabric {
+import fabiofdez.analogclock.item.AnalogClockItem;
+import net.fabricmc.fabric.api.itemgroup.v1.ItemGroupEvents;
+import net.minecraft.core.Registry;
+import net.minecraft.core.registries.BuiltInRegistries;
+import net.minecraft.resources.ResourceKey;
+
+import java.util.function.BiFunction;
+import java.util.function.Supplier;
+//? }
+
 //? neoforge {
 /*import net.neoforged.bus.api.IEventBus;
 import net.neoforged.neoforge.event.BuildCreativeModeTabContentsEvent;
@@ -23,12 +29,11 @@ import net.neoforged.neoforge.registries.DeferredBlock;
 import net.neoforged.neoforge.registries.DeferredRegister;
 *///? }
 
-import java.util.function.Function;
-
 public class ModBlocks {
   //? fabric {
   public static final Supplier<Block> ANALOG_CLOCK = register(ModBlockBuilder.ANALOG_CLOCK);
   public static final Supplier<Block> AMETHYST_PENDULUM = register(ModBlockBuilder.AMETHYST_PENDULUM);
+  public static final Supplier<Block> INTERNAL_CLOCK_FACE = register(ModBlockBuilder.CLOCK_FACE);
   //? }
 
   //? neoforge {
@@ -37,15 +42,17 @@ public class ModBlocks {
 
   public static final DeferredBlock<Block> ANALOG_CLOCK = register(ModBlockBuilder.ANALOG_CLOCK);
   public static final DeferredBlock<Block> AMETHYST_PENDULUM = register(ModBlockBuilder.AMETHYST_PENDULUM);
+  public static final DeferredBlock<Block> INTERNAL_CLOCK_FACE = register(ModBlockBuilder.CLOCK_FACE);
   *///? }
 
   //? fabric {
   private static Supplier<Block> register(ModBlockBuilder block) {
     ResourceKey<Block> blockKey = AnalogClock.blockKey(block.name);
-    Block toRegister = block.builder.apply(BlockBehaviour.Properties.of() /*? if > 1.21.1 >> ');' */ .setId(blockKey));
+    Block toRegister = block.blockBuilder.apply(BlockBehaviour.Properties.of() /*? if > 1.21.1 >> ');' */.setId(blockKey));
 
     ResourceKey<Item> itemKey = AnalogClock.itemKey(block.name);
-    BlockItem blockItem = new BlockItem(toRegister, new Item.Properties() /*? if > 1.21.1 >> ');' */ .setId(itemKey).useBlockDescriptionPrefix());
+    Item.Properties itemProps = new Item.Properties() /*? if > 1.21.1 >> */.setId(itemKey).useBlockDescriptionPrefix();
+    BlockItem blockItem = block.itemBuilder.apply(toRegister, itemProps);
 
     Block registeredBlock = Registry.register(BuiltInRegistries.BLOCK, blockKey, toRegister);
     Registry.register(BuiltInRegistries.ITEM, itemKey, blockItem);
@@ -56,12 +63,12 @@ public class ModBlocks {
 
   //? neoforge {
   /*private static DeferredBlock<Block> register(ModBlockBuilder block) {
-    DeferredBlock<Block> registeredBlock = BLOCKS.registerBlock(block.name, block.builder);
+    DeferredBlock<Block> registeredBlock = BLOCKS.registerBlock(block.name, block.blockBuilder);
 
     //? > 1.21.1
-    ITEMS.registerItem(block.name, (props) -> new BlockItem(registeredBlock.get(), props.useBlockDescriptionPrefix()));
+    ITEMS.registerItem(block.name, (props) -> block.itemBuilder.apply(registeredBlock.get(), props.useBlockDescriptionPrefix()));
     //? <= 1.21.1
-    //ITEMS.register(block.name, () -> new BlockItem(registeredBlock.get(), new Item.Properties()));
+    //ITEMS.register(block.name, () -> block.itemBuilder.apply(registeredBlock.get(), new Item.Properties()));
 
     return registeredBlock;
   }
@@ -91,30 +98,22 @@ public class ModBlocks {
   *///? }
 
   enum ModBlockBuilder {
-    ANALOG_CLOCK(
-        "analog_clock",
-        (props) -> new AnalogClockBlock(props
-            .sound(SoundType.COPPER)
-            .instabreak()
-            .pushReaction(PushReaction.DESTROY)
-            .noOcclusion())
-    ),
-
-    AMETHYST_PENDULUM(
-        "amethyst_pendulum",
-        (props) -> new AmethystPendulumBlock(props
-            .sound(SoundType.COPPER)
-            .instabreak()
-            .pushReaction(PushReaction.DESTROY)
-            .noOcclusion())
-    );
+    ANALOG_CLOCK("analog_clock", AnalogClockBlock::new, AnalogClockItem::new),
+    AMETHYST_PENDULUM("amethyst_pendulum", AmethystPendulumBlock::new),
+    CLOCK_FACE("clock_face", ClockFaceBlock::new);
 
     private final String name;
-    private final Function<BlockBehaviour.Properties, Block> builder;
+    private final Function<BlockBehaviour.Properties, Block> blockBuilder;
+    private final BiFunction<Block, Item.Properties, BlockItem> itemBuilder;
 
-    ModBlockBuilder(String name, Function<BlockBehaviour.Properties, Block> builder) {
+    ModBlockBuilder(String name, Function<BlockBehaviour.Properties, Block> blockBuilder) {
+      this(name, blockBuilder, BlockItem::new);
+    }
+
+    ModBlockBuilder(String name, Function<BlockBehaviour.Properties, Block> blockBuilder, BiFunction<Block, Item.Properties, BlockItem> itemBuilder) {
       this.name = name;
-      this.builder = builder;
+      this.blockBuilder = blockBuilder;
+      this.itemBuilder = itemBuilder;
     }
   }
 }
