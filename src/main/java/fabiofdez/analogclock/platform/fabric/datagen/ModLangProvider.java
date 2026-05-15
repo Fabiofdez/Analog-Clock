@@ -4,6 +4,7 @@ package fabiofdez.analogclock.platform.fabric.datagen;
 
 import fabiofdez.analogclock.ModBlocks;
 import fabiofdez.analogclock.ModSounds;
+import fabiofdez.analogclock.item.AnalogClockItem;
 import net.fabricmc.fabric.api.datagen.v1.FabricDataOutput;
 import net.fabricmc.fabric.api.datagen.v1.provider.FabricLanguageProvider;
 import net.minecraft.Util;
@@ -20,14 +21,17 @@ public class ModLangProvider extends FabricLanguageProvider {
   }
 
   @Override
-  public void generateTranslations(HolderLookup.Provider provider, TranslationBuilder translationBuilder) {
-    translationBuilder.add(ModBlocks.ANALOG_CLOCK.get(), "Analog Clock");
-    translationBuilder.add(ModBlocks.AMETHYST_PENDULUM.get(), "Amethyst Pendulum");
+  public void generateTranslations(HolderLookup.Provider provider, TranslationBuilder builder) {
+    builder.add(ModBlocks.ANALOG_CLOCK.get().asItem(), "Analog Clock");
+    builder.add(ModBlocks.AMETHYST_PENDULUM.get().asItem(), "Amethyst Pendulum");
 
-    translationBuilder.add(subtitleFor(ModSounds.CLOCK_WIND), "Clock winding up");
-    translationBuilder.add(subtitleFor(ModSounds.CLOCK_TICK), "Pendulum ticking");
-    translationBuilder.add(subtitleFor(ModSounds.CLOCK_CHIME), "Clock chime ringing");
-    translationBuilder.add(subtitleFor(ModSounds.CHIME_RESONATE), "Clock chime resonating");
+    builder.add(subtitleFor(ModSounds.CLOCK_WIND), "Clock winding up");
+    builder.add(subtitleFor(ModSounds.CLOCK_TICK), "Pendulum ticking");
+    builder.add(subtitleFor(ModSounds.CLOCK_CHIME), "Clock chime ringing");
+    builder.add(subtitleFor(ModSounds.CHIME_RESONATE), "Clock chime resonating");
+
+    builder.add(AnalogClockItem.Tooltip.DYE.getTranslationKey(), "%1$s Dial");
+    builder.add(AnalogClockItem.Tooltip.PLATING.getTranslationKey(), "%1$s-Plated Hands");
   }
 
   private String subtitleFor(Supplier<SoundEvent> sound) {

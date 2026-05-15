@@ -1,6 +1,8 @@
 {
-  "block.analogclock.amethyst_pendulum": "Amethyst Pendulum",
-  "block.analogclock.analog_clock": "Analog Clock",
+  "item.analogclock.amethyst_pendulum": "Amethyst Pendulum",
+  "item.analogclock.analog_clock": "Analog Clock",
+  "item.analogclock.analog_clock.tooltip.dye": "%1$s Dial",
+  "item.analogclock.analog_clock.tooltip.plating": "%1$s-Plated Hands",
   "subtitles.analogclock.chime_resonate": "Clock chime resonating",
   "subtitles.analogclock.clock_chime": "Clock chime ringing",
   "subtitles.analogclock.clock_tick": "Pendulum ticking",

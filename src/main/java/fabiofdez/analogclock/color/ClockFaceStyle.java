@@ -29,6 +29,21 @@ public class ClockFaceStyle {
     return state.getValue(AnalogClockBlock.FACE_TINT).getColor();
   }
 
+  public static String readable(DyeColor color) {
+    return toProperCase(color.name());
+  }
+
+  public static String readable(Plating plating) {
+    return toProperCase(plating.name());
+  }
+
+  private static String toProperCase(String str) {
+    return Arrays
+        .stream(str.split("[_\\s]"))
+        .map((s) -> Character.toUpperCase(s.charAt(0)) + s.substring(1).toLowerCase())
+        .collect(Collectors.joining(" "));
+  }
+
   public enum DyeColor implements StringRepresentable {
     NO_COLOR(null, 0xF2EDAA),
 

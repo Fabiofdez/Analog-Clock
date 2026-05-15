@@ -74,10 +74,10 @@ public abstract class DirectionalAlignedBlock extends HorizontalDirectionalBlock
     Vec3 shift = Vec3.atLowerCornerOf(unitShift).scale(1 - (thickness / 16F));
 
     return switch (facingDirection) {
-      case NORTH -> isFront ? FACING_Z : FACING_Z.move(shift /*? if <= 1.21.1 >> ')' */ /*.x, shift.y, shift.z*/);
-      case SOUTH -> isFront ? FACING_Z.move(shift /*? if <= 1.21.1 >> ')' */ /*.x, shift.y, shift.z*/) : FACING_Z;
-      case WEST -> isFront ? FACING_X : FACING_X.move(shift /*? if <= 1.21.1 >> ')' */ /*.x, shift.y, shift.z*/);
-      case EAST -> isFront ? FACING_X.move(shift /*? if <= 1.21.1 >> ')' */ /*.x, shift.y, shift.z*/) : FACING_X;
+      case NORTH -> isFront ? FACING_Z : FACING_Z.move(shift /*? if <= 1.21.1 >> ')' *//*.x, shift.y, shift.z*/);
+      case SOUTH -> isFront ? FACING_Z.move(shift /*? if <= 1.21.1 >> ')' *//*.x, shift.y, shift.z*/) : FACING_Z;
+      case WEST -> isFront ? FACING_X : FACING_X.move(shift /*? if <= 1.21.1 >> ')' *//*.x, shift.y, shift.z*/);
+      case EAST -> isFront ? FACING_X.move(shift /*? if <= 1.21.1 >> ')' *//*.x, shift.y, shift.z*/) : FACING_X;
       default -> Shapes.empty();
     };
   }
