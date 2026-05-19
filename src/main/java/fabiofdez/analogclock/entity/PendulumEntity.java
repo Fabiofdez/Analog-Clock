@@ -8,8 +8,6 @@ import fabiofdez.analogclock.util.FrameInterpolator;
 import fabiofdez.analogclock.util.GravityInterpolator;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
-import net.minecraft.core.HolderLookup;
-import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.protocol.Packet;
 import net.minecraft.network.protocol.game.ClientGamePacketListener;
 import net.minecraft.network.protocol.game.ClientboundBlockEntityDataPacket;
@@ -21,16 +19,11 @@ import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
-//? if >= 1.21.11 {
-/*import net.minecraft.world.level.storage.ValueInput;
-import net.minecraft.world.level.storage.ValueOutput;
-*///? }
-import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.List;
 
-public class PendulumEntity extends BlockEntity {
+public class PendulumEntity extends BaseBlockEntity {
   public static final int NUM_DAY_SUBPHASES = 24;
   public static final long DAY_SUBPHASE_TICKS = AnalogClockFace.DAY_LENGTH_TICKS / NUM_DAY_SUBPHASES;
   public static final long CHIME_PHASE_TICKS = AnalogClockFace.HOUR_LENGTH_TICKS * 6;
@@ -44,20 +37,22 @@ public class PendulumEntity extends BlockEntity {
   public static final int CHIME_BEAT_TICKS = PENDULUM_FRAME_TICKS * 4;
   public static final int CHIME_DURATION_TICKS = 4 * CHIME_BEAT_TICKS;
 
+  // Chime Notes
+  // (pitch multiplier relative to G)
   private static final float G = 1F;
   private static final float C = 1.33F;
   private static final float D = 1.5F;
   private static final float E = 1.68F;
 
+  private final ExtraDatum<Integer> SWING_FRAME_OFFSET = ExtraDatum.ofInt("swingOffset").setDefault(-1);
+  private final ExtraDatum<Integer> CURRENT_SWING_FRAME = ExtraDatum.ofInt("swingFrame").setDefault(0);
+  private final ExtraDatum<Boolean> SWINGING = ExtraDatum.ofBoolean("swinging").setDefault(true);
   private final GravityInterpolator SWING_INTERPOLATOR;
-  private int swingFrameOffset = -1;
-  private int currentSwingFrame = 0;
-  private boolean swinging = true;
 
+  private final ExtraDatum<Integer> CURRENT_COLOR_PHASE = ExtraDatum.ofInt("colorPhase").setDefault(0);
+  private final ExtraDatum<Boolean> IN_OVERWORLD = ExtraDatum.ofBoolean("inOverworld").setDefault(true);
+  private final ExtraDatum<Integer> ALTERNATE_TINT = ExtraDatum.ofInt("alternateTint");
   private final PhaseTintInterpolator COLOR_PHASE_ANIMATOR;
-  private int currentColorPhase = 0;
-  private int alternateTint = GemstoneColor.NO_COLOR;
-  private boolean inOverworld = true;
 
   private boolean isChimeRinging = false;
   private int chimeTicks = 0;
@@ -85,6 +80,7 @@ public class PendulumEntity extends BlockEntity {
   public PendulumEntity(BlockPos pos, BlockState state) {
     super(ModBlockEntities.PENDULUM_ENTITY.get(), pos, state);
 
+    ALTERNATE_TINT.set(GemstoneColor.NO_COLOR);
     SWING_INTERPOLATOR = new GravityInterpolator();
     COLOR_PHASE_ANIMATOR = new PhaseTintInterpolator();
   }
@@ -94,51 +90,51 @@ public class PendulumEntity extends BlockEntity {
     if (!(state.getBlock() instanceof AmethystPendulumBlock)) return;
 
     long dayTime = level.getDayTime();
-    if (pendulum.swingFrameOffset < 0) initSwingOffset(pendulum, dayTime);
+    if (pendulum.SWING_FRAME_OFFSET.get() < 0) initSwingOffset(pendulum, dayTime);
 
     int nextColorPhase;
     if (level.dimension() == Level.OVERWORLD) {
       nextColorPhase = calculateNextColorPhase(pendulum, dayTime);
-      pendulum.inOverworld = true;
+      pendulum.IN_OVERWORLD.set(true);
     } else {
       nextColorPhase = getRandomColorPhase(pendulum, level);
-      pendulum.inOverworld = false;
+      pendulum.IN_OVERWORLD.set(false);
     }
 
     int nextSwingFrame = calculateNextSwingFrame(pendulum, level, dayTime);
-    handleChime(pendulum, level, pos);
+    if (level.dimension() == Level.OVERWORLD) handleChime(pendulum, level, pos);
 
     if (!pendulum.differentFrom(nextSwingFrame, nextColorPhase)) return;
 
-    if (pendulum.currentSwingFrame != nextSwingFrame && phaseExtreme(nextSwingFrame)) {
+    if (pendulum.getSwingFrame() != nextSwingFrame && phaseExtreme(nextSwingFrame)) {
       playTickTock(pendulum, level, pos);
     }
 
-    pendulum.currentSwingFrame = nextSwingFrame;
-    pendulum.currentColorPhase = nextColorPhase;
+    pendulum.CURRENT_SWING_FRAME.set(nextSwingFrame);
+    pendulum.CURRENT_COLOR_PHASE.set(nextColorPhase);
     setChanged(level, pos, state);
 
     ((ServerLevel) level).getChunkSource().blockChanged(pos);
   }
 
   public int getSwingFrame() {
-    return currentSwingFrame;
+    return CURRENT_SWING_FRAME.get();
   }
 
   public int getColorPhase() {
-    return currentColorPhase;
+    return CURRENT_COLOR_PHASE.get();
   }
 
   public boolean inOverworld() {
-    return inOverworld;
+    return IN_OVERWORLD.get();
   }
 
   public int getAlternateTint() {
-    return alternateTint;
+    return ALTERNATE_TINT.get();
   }
 
   private boolean settled() {
-    return !SWING_INTERPOLATOR.inProgress() && settled(currentSwingFrame);
+    return !SWING_INTERPOLATOR.inProgress() && settled(getSwingFrame());
   }
 
   private static int calculateNextSwingFrame(PendulumEntity pendulum, Level level, long dayTime) {
@@ -149,27 +145,27 @@ public class PendulumEntity extends BlockEntity {
     //boolean doDaylightCycle = rules.get(GameRules.ADVANCE_TIME);
 
     if (doDaylightCycle) {
-      pendulum.swinging = true;
-      return toSwingFrame(dayTime - pendulum.swingFrameOffset);
+      pendulum.SWINGING.set(true);
+      return toSwingFrame(dayTime - pendulum.SWING_FRAME_OFFSET.get());
     }
 
-    if (pendulum.swinging || !pendulum.settled()) {
-      pendulum.swingFrameOffset = -1;
+    if (pendulum.SWINGING.get() || !pendulum.settled()) {
+      pendulum.SWING_FRAME_OFFSET.set(-1);
       return stopSwinging(pendulum);
     }
 
-    return pendulum.currentSwingFrame;
+    return pendulum.getSwingFrame();
   }
 
   private static int stopSwinging(PendulumEntity pendulum) {
     GravityInterpolator animator = pendulum.SWING_INTERPOLATOR;
 
     if (!animator.isInitialized() || !animator.inProgress()) {
-      animator.interp(pendulum.currentSwingFrame);
+      animator.interp(pendulum.getSwingFrame());
     }
 
     int nextFrame = animator.step();
-    if (!animator.inProgress()) pendulum.swinging = false;
+    if (!animator.inProgress()) pendulum.SWINGING.set(false);
 
     return nextFrame;
   }
@@ -180,7 +176,7 @@ public class PendulumEntity extends BlockEntity {
 
     int nextPhase = toColorPhase(dayTime);
     if (!animator.isInitialized()) {
-      animator.interp(pendulum.currentColorPhase, nextPhase);
+      animator.interp(pendulum.getColorPhase(), nextPhase);
       return animator.step();
     }
 
@@ -193,18 +189,18 @@ public class PendulumEntity extends BlockEntity {
 
     RandomSource rand = level.getRandom();
     int nextPhase = rand.nextInt(0, NUM_DAY_SUBPHASES) % NUM_DAY_SUBPHASES;
-    animator.interp(pendulum.currentColorPhase, nextPhase);
+    animator.interp(pendulum.getColorPhase(), nextPhase);
     nextPhase = animator.step();
 
     if (level.dimension() == Level.NETHER) {
-      pendulum.alternateTint = GemstoneColor.getNetherColor(nextPhase);
+      pendulum.ALTERNATE_TINT.set(GemstoneColor.getNetherColor(nextPhase));
     } // TODO: tint for End dimension?
 
     return nextPhase;
   }
 
   private static void initSwingOffset(PendulumEntity pendulum, long dayTime) {
-    pendulum.swingFrameOffset = Math.toIntExact(dayTime % PENDULUM_PERIOD_TICKS);
+    pendulum.SWING_FRAME_OFFSET.set(Math.toIntExact(dayTime % PENDULUM_PERIOD_TICKS));
   }
 
   private static boolean settled(int swingFrame) {
@@ -230,16 +226,18 @@ public class PendulumEntity extends BlockEntity {
   }
 
   private boolean differentFrom(int swingFrame, int colorPhase) {
-    return swingFrame != currentSwingFrame || colorPhase != currentColorPhase;
+    return swingFrame != getSwingFrame() || colorPhase != getColorPhase();
   }
 
   private static void playTickTock(PendulumEntity pendulum, Level level, BlockPos pos) {
-    float pitch = leftOfCenter(pendulum.currentSwingFrame) ? 1.15F : 0.85F;
+    float pitch = leftOfCenter(pendulum.getSwingFrame()) ? 1.15F : 0.85F;
     level.playSound(null, pos, ModSounds.CLOCK_TICK.get(), SoundSource.BLOCKS, 0.8F, pitch);
   }
 
   private static void handleChime(PendulumEntity pendulum, Level level, BlockPos pos) {
-    long offsetDayTime = level.getDayTime() - pendulum.swingFrameOffset;
+    if (!pendulum.SWINGING.get()) return;
+
+    long offsetDayTime = level.getDayTime() - pendulum.SWING_FRAME_OFFSET.get();
     if (offsetDayTime < 0) offsetDayTime += AnalogClockFace.DAY_LENGTH_TICKS;
     offsetDayTime %= AnalogClockFace.DAY_LENGTH_TICKS;
 
@@ -277,71 +275,30 @@ public class PendulumEntity extends BlockEntity {
     level.playSound(null, pos, ModSounds.CLOCK_CHIME.get(), SoundSource.BLOCKS, 1F, pitch);
     level.playSound(null, pos, ModSounds.CHIME_RESONATE.get(), SoundSource.BLOCKS, 1.4F, pitch);
 
-    Direction chimeStrike = level
-        .getRandom()
-        .nextBoolean() ? pendulumFacing.getClockWise() : pendulumFacing.getCounterClockWise();
+    Direction chimeStrike = pendulumFacing.getClockWise();
+    if (level.getRandom().nextBoolean()) chimeStrike = chimeStrike.getOpposite();
+
     level.blockEvent(behindPendulum, behindPendulumState.getBlock(), 2, chimeStrike.get3DDataValue());
   }
 
   @Override
-      //? if <= 1.21.5
-  protected void saveAdditional(CompoundTag output, HolderLookup.Provider registryLookup) {
-      //? if >= 1.21.11
-  //protected void saveAdditional(ValueOutput output) {
-    output.putBoolean("swinging", swinging);
-    output.putBoolean("inOverworld", inOverworld);
-    output.putInt("alternateTint", alternateTint);
-    output.putInt("swingOffset", swingFrameOffset);
-    output.putInt("swingFrame", currentSwingFrame);
-
-    if (COLOR_PHASE_ANIMATOR.isInitialized()) {
-      output.putInt("colorPhase", currentColorPhase);
-    }
-
-    //? if <= 1.21.5
-    super.saveAdditional(output, registryLookup);
-    //? if >= 1.21.11
-    //super.saveAdditional(output);
+  protected void saveData(ExtraData output) {
+    output.save(SWINGING);
+    output.save(IN_OVERWORLD);
+    output.save(ALTERNATE_TINT);
+    output.save(SWING_FRAME_OFFSET);
+    output.save(CURRENT_SWING_FRAME);
+    if (COLOR_PHASE_ANIMATOR.isInitialized()) output.save(CURRENT_COLOR_PHASE);
   }
 
   @Override
-      //? if <= 1.21.5 {
-  protected void loadAdditional(CompoundTag input, HolderLookup.Provider registryLookup) {
-    super.loadAdditional(input, registryLookup);
-
-    //? if > 1.21.1 {
-    input.getBoolean("swinging").ifPresent((val) -> swinging = val);
-    input.getBoolean("inOverworld").ifPresent((val) -> inOverworld = val);
-    //? } else {
-    /*swinging = input.getBoolean("swinging");
-    inOverworld = input.getBoolean("inOverworld");
-    *///? }
-
-    //? }
-
-      //? if >= 1.21.11 {
-  /*protected void loadAdditional(ValueInput input) {
-    super.loadAdditional(input);
-    swinging = input.getBooleanOr("swinging", swinging);
-    inOverworld = input.getBooleanOr("inOverworld", inOverworld);
-    *///? }
-
-    //? if > 1.21.1 {
-    input.getInt("alternateTint").ifPresent((val) -> alternateTint = val);
-    input.getInt("swingOffset").ifPresent((num) -> swingFrameOffset = num);
-    input.getInt("swingFrame").ifPresent((num) -> currentSwingFrame = num);
-    input.getInt("colorPhase").ifPresent((num) -> currentColorPhase = num);
-    //? } else {
-    /*alternateTint = input.getInt("alternateTint");
-    swingFrameOffset = input.getInt("swingOffset");
-    currentSwingFrame = input.getInt("swingFrame");
-    currentColorPhase = input.getInt("colorPhase");
-    *///? }
-  }
-
-  @Override
-  public @NotNull CompoundTag getUpdateTag(HolderLookup.Provider provider) {
-    return saveWithoutMetadata(provider);
+  protected void loadData(ExtraData input) {
+    input.load(SWINGING);
+    input.load(IN_OVERWORLD);
+    input.load(ALTERNATE_TINT);
+    input.load(SWING_FRAME_OFFSET);
+    input.load(CURRENT_SWING_FRAME);
+    input.load(CURRENT_COLOR_PHASE);
   }
 
   @Override

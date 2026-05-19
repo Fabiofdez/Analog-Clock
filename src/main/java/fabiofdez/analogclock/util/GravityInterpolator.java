@@ -48,9 +48,16 @@ public class GravityInterpolator extends FrameInterpolator {
   public int step() {
     if (inProgress() && progress != 1F) return super.step();
 
+    //? if < 1.21 {
+    /*InterpolatorPhase phase = phases.pollFirst();
+    if (phase != null) {
+      interp(phase.start, phase.end);
+    }
+    *///? } else {
     if (phases.pollFirst() instanceof InterpolatorPhase(int start, int end)) {
       interp(start, end);
     }
+    //? }
 
     int nextFrame = super.step();
     inProgress = inProgress || !phases.isEmpty();

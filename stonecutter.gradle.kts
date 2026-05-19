@@ -33,7 +33,9 @@ stonecutter tasks {
 }
 
 stonecutter parameters {
-	constants.match(node.metadata.project.substringAfterLast("-"), "fabric", "neoforge", "forge")
+	var loader = current.project.substringAfterLast("-")
+
+	constants.match(loader, "fabric", "neoforge", "forge")
 	filters.include("**/*.fsh", "**/*.vsh")
 	swaps["mod_version"] = "\"" + property("mod.version") + "\";"
 	swaps["mod_id"] = "\"" + property("mod.id") + "\";"
@@ -57,8 +59,36 @@ stonecutter parameters {
 			replace("FMLEnvironment.dist", "FMLEnvironment.getDist()")
 		}
 
+		string(current.parsed >= "1.21.4") {
+			replace("${property("mod.group")}.${property("mod.id")}.util.ARGB", "net.minecraft.util.ARGB")
+		}
+
 		string(current.parsed > "1.21.1") {
 			replace("RecipeProvider.has", "provider.has")
+		}
+
+		string("has_interaction_result", current.parsed eq "1.21.1") {
+			replace("InteractionResult", "ItemInteractionResult")
+			replace("protected InteractionResult useItemOn", "protected ItemInteractionResult useItemOn")
+			replace("InteractionResult.PASS", "ItemInteractionResult.PASS_TO_DEFAULT_BLOCK_INTERACTION")
+		}
+
+		string(current.parsed >= "1.21") {
+			replace("public VoxelShape getShape", "protected VoxelShape getShape")
+			replace("public BlockState updateShape", "protected BlockState updateShape")
+			replace("public boolean isCollisionShapeFullBlock", "protected boolean isCollisionShapeFullBlock")
+			replace("public boolean canSurvive", "protected boolean canSurvive")
+			replace("public List<ItemStack> getDrops", "protected List<ItemStack> getDrops")
+			replace("public InteractionResult use", "protected InteractionResult useItemOn")
+		}
+
+		string(loader == "neoforge") {
+			replace("BlockSupplier", "DeferredBlock<Block>")
+		}
+
+		string(loader == "forge") {
+			replace("net.neoforged.neoforge.registries.DeferredBlock", "net.minecraftforge.registries.RegistryObject")
+			replace("BlockSupplier", "RegistryObject<Block>")
 		}
 	}
 }

@@ -1,5 +1,6 @@
 package fabiofdez.analogclock.block;
 
+//? >= 1.21
 import com.mojang.serialization.MapCodec;
 import fabiofdez.analogclock.ModBlockEntities;
 import fabiofdez.analogclock.ModBlocks;
@@ -18,6 +19,7 @@ import net.minecraft.util.RandomSource;
 //? }
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.EntityBlock;
+//? >= 1.21
 import net.minecraft.world.level.block.HorizontalDirectionalBlock;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.entity.BlockEntityTicker;
@@ -69,7 +71,8 @@ public class AmethystPendulumBlock extends DirectionalAlignedBlock implements En
   }
 
   @Override
-  protected @NotNull VoxelShape getShape(BlockState state, BlockGetter blockGetter, BlockPos pos, CollisionContext ctx) {
+  @NotNull
+  protected VoxelShape getShape(BlockState state, BlockGetter blockGetter, BlockPos pos, CollisionContext ctx) {
     BlockState blockAbove = blockGetter.getBlockState(pos.above());
     if (!mayPlaceUnder(blockAbove, blockGetter, pos.above())) return Shapes.empty();
 
@@ -77,10 +80,11 @@ public class AmethystPendulumBlock extends DirectionalAlignedBlock implements En
   }
 
   @Override
+  @NotNull
       //? > 1.21.1
-  protected @NotNull BlockState updateShape(BlockState state, LevelReader level, ScheduledTickAccess tickAccess, BlockPos pos, Direction direction, BlockPos pos2, BlockState state2, RandomSource rand) {
+  protected BlockState updateShape(BlockState state, LevelReader level, ScheduledTickAccess tickAccess, BlockPos pos, Direction direction, BlockPos pos2, BlockState state2, RandomSource rand) {
     //? <= 1.21.1
-    //protected @NotNull BlockState updateShape(BlockState state, Direction direction, BlockState state2, LevelAccessor level, BlockPos pos, BlockPos pos2) {
+    //public BlockState updateShape(BlockState state, Direction direction, BlockState state2, LevelAccessor level, BlockPos pos, BlockPos pos2) {
     if (!state.canSurvive(level, pos)) return Blocks.AIR.defaultBlockState();
 
     //? > 1.21.1
@@ -89,10 +93,12 @@ public class AmethystPendulumBlock extends DirectionalAlignedBlock implements En
     //return super.updateShape(state, direction, state2, level, pos, pos2);
   }
 
+  //? >= 1.21 {
   @Override
   protected @NotNull MapCodec<? extends HorizontalDirectionalBlock> codec() {
     return simpleCodec(AmethystPendulumBlock::new);
   }
+  //? }
 
   @Override
   public @Nullable BlockEntity newBlockEntity(BlockPos pos, BlockState state) {

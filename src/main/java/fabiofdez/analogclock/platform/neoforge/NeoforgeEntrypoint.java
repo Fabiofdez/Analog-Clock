@@ -28,7 +28,7 @@ public class NeoforgeEntrypoint {
 
     modEventBus.addListener(ModBlocks::addCreative);
 
-    if (FMLEnvironment.dist == Dist.CLIENT) {
+    if (FMLEnvironment.getDist() == Dist.CLIENT) {
       modEventBus.addListener(NeoforgeClientEventSubscriber::onClientSetup);
     }
   }

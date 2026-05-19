@@ -12,5 +12,6 @@
     "IdRemapMixin",
     "RegistryRemapMixin"
   ],
-  "client": []
+  "client": [],
+  "refmap": "analogclock.mixins.refmap.json"
 }

@@ -1,6 +1,7 @@
+//~ has_interaction_result
+
 package fabiofdez.analogclock.block;
 
-import com.mojang.serialization.MapCodec;
 import fabiofdez.analogclock.ModBlockEntities;
 import fabiofdez.analogclock.color.ClockFaceStyle;
 import fabiofdez.analogclock.entity.AnalogClockFace;
@@ -19,7 +20,6 @@ import net.minecraft.world.level.BlockGetter;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.EntityBlock;
-import net.minecraft.world.level.block.HorizontalDirectionalBlock;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.entity.BlockEntityTicker;
 import net.minecraft.world.level.block.entity.BlockEntityType;
@@ -32,6 +32,12 @@ import net.minecraft.world.phys.shapes.CollisionContext;
 import net.minecraft.world.phys.shapes.VoxelShape;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
+//? if < 1.21 {
+/*import net.minecraft.nbt.CompoundTag;
+*///? } else {
+import com.mojang.serialization.MapCodec;
+import net.minecraft.world.level.block.HorizontalDirectionalBlock;
+//? }
 
 import java.util.List;
 
@@ -55,14 +61,17 @@ public class AnalogClockBlock extends DirectionalAlignedBlock implements EntityB
   }
 
   @Override
-  protected @NotNull VoxelShape getShape(BlockState state, BlockGetter blockGetter, BlockPos pos, CollisionContext collisionContext) {
+  @NotNull
+  protected VoxelShape getShape(BlockState state, BlockGetter blockGetter, BlockPos pos, CollisionContext collisionContext) {
     return getShapeWithThickness(state, 2);
   }
 
+  //? >= 1.21 {
   @Override
   protected @NotNull MapCodec<? extends HorizontalDirectionalBlock> codec() {
     return simpleCodec(AnalogClockBlock::new);
   }
+  //? }
 
   @Override
   public @Nullable BlockEntity newBlockEntity(BlockPos pos, BlockState state) {
@@ -78,7 +87,20 @@ public class AnalogClockBlock extends DirectionalAlignedBlock implements EntityB
 
   @NotNull
   @Override
-  protected InteractionResult useItemOn(ItemStack stack, BlockState state, Level level, BlockPos pos, Player player, InteractionHand hand, BlockHitResult hitResult) {
+  protected InteractionResult useItemOn(/*? if >= 1.21 >> 'BlockState' */ItemStack stack, BlockState state, Level level, BlockPos pos, Player player, InteractionHand hand, BlockHitResult hitResult) {
+    //? <= 1.20.1
+    //ItemStack stack = player.getItemInHand(hand);
+
+    InteractionResult result = useOnClock(stack, state, level, pos, player);
+    if (result != null) return result;
+
+    //? <= 1.20.1
+    //return super.use(state, level, pos, player, hand, hitResult);
+    //? >= 1.21
+    return super.useItemOn(stack, state, level, pos, player, hand, hitResult);
+  }
+
+  private InteractionResult useOnClock(ItemStack stack, BlockState state, Level level, BlockPos pos, Player player) {
     Item item = stack.getItem();
 
     if (stack.is(Items.BRUSH)) {
@@ -111,7 +133,12 @@ public class AnalogClockBlock extends DirectionalAlignedBlock implements EntityB
 
       level.setBlockAndUpdate(pos, state.setValue(FACE_TINT, ClockFaceStyle.DyeColor.getColorOf(item)));
       level.playSound(null, pos, SoundEvents.DYE_USE, SoundSource.BLOCKS);
+
+      //? <= 1.20.1
+      //stack.shrink(1);
+      //? >= 1.21
       stack.consume(1, player);
+
       return InteractionResult.CONSUME;
     }
 
@@ -122,26 +149,37 @@ public class AnalogClockBlock extends DirectionalAlignedBlock implements EntityB
 
       level.setBlockAndUpdate(pos, state.setValue(HANDS_PLATING, ClockFaceStyle.Plating.getMetalOf(item)));
       level.playSound(null, pos, SoundEvents.COPPER_STEP, SoundSource.BLOCKS, 0.6F, 1.5F);
+
+      //? <= 1.20.1
+      //stack.shrink(1);
+      //? >= 1.21
       stack.consume(1, player);
+
       return InteractionResult.CONSUME;
     }
 
-    return super.useItemOn(stack, state, level, pos, player, hand, hitResult);
+    return null;
   }
 
   @NotNull
   @Override
   protected List<ItemStack> getDrops(BlockState state, LootParams.Builder builder) {
-    List<ItemStack> stacks = super.getDrops(state, builder);
-    if (stacks.isEmpty()) return stacks;
+    List<ItemStack> drops = super.getDrops(state, builder);
 
-    ItemStack stack = stacks.getFirst();
-    if (!stack.is(this.asItem())) return stacks;
+    drops.forEach((stack) -> {
+      if (!stack.is(this.asItem())) return;
 
-    stack.set(AnalogClockItem.FACE_TINT, state.getValue(FACE_TINT).dyeId());
-    stack.set(AnalogClockItem.HANDS_PLATING, state.getValue(HANDS_PLATING).metalId());
+      //? if < 1.21 {
+      /*CompoundTag itemTag = stack.getOrCreateTag();
+      itemTag.putString(AnalogClockItem.FACE_TINT, state.getValue(FACE_TINT).dyeId());
+      itemTag.putString(AnalogClockItem.HANDS_PLATING, state.getValue(HANDS_PLATING).metalId());
+      *///? } else {
+      stack.set(AnalogClockItem.FACE_TINT, state.getValue(FACE_TINT).dyeId());
+      stack.set(AnalogClockItem.HANDS_PLATING, state.getValue(HANDS_PLATING).metalId());
+      //? }
+    });
 
-    return List.of(stack);
+    return drops;
   }
 
   // TODO: output comparator signal?

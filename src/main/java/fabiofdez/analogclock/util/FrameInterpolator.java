@@ -33,6 +33,9 @@ public abstract class FrameInterpolator {
       inProgress = false;
     } else {
       float speed = (float) Math.abs(frameDiff) / config.TARGET_DURATION_TICKS;
+      //? < 1.21
+      //float dampenedSpeed = Math.min(Math.max(speed * config.SPEED_DAMPER, config.MIN_SPEED), config.MAX_SPEED);
+      //? >= 1.21
       float dampenedSpeed = Math.clamp(speed * config.SPEED_DAMPER, config.MIN_SPEED, config.MAX_SPEED);
 
       step = Math.abs(dampenedSpeed / frameDiff);

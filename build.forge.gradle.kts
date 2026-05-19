@@ -17,12 +17,8 @@ platform {
 
 legacyForge {
 	version = "${property("deps.minecraft")}-${property("deps.forge")}"
-
+	accessTransformers.from(rootProject.file("src/main/resources/aw/${stonecutter.current.version}.cfg"))
 	validateAccessTransformers = true
-
-	accessTransformers.from(
-		rootProject.file("src/main/resources/aw/${stonecutter.current.version}.cfg")
-	)
 
 	runs {
 		register("client") {
@@ -30,11 +26,13 @@ legacyForge {
 			gameDirectory = file("run/")
 			ideName = "Forge Client (${stonecutter.active?.version})"
 			programArgument("--username=Dev")
+			jvmArgument("-Dmixin.env.remapRefMap=true")
 		}
 		register("server") {
 			server()
 			gameDirectory = file("run/")
 			ideName = "Forge Server (${stonecutter.active?.version})"
+			jvmArgument("-Dmixin.env.remapRefMap=true")
 		}
 	}
 

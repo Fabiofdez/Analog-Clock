@@ -1,0 +1,62 @@
+{
+  "chime_resonate": {
+    "category": "block",
+    "sounds": [
+      {
+        "type": "event",
+        "attenuation_distance": 48,
+        "name": "minecraft:block.note_block.chime",
+        "pitch": 0.5
+      }
+    ],
+    "subtitle": "subtitles.analogclock.chime_resonate"
+  },
+  "clock_chime": {
+    "category": "block",
+    "sounds": [
+      {
+        "type": "event",
+        "attenuation_distance": 48,
+        "name": "minecraft:block.bell.use",
+        "volume": 0.04
+      }
+    ],
+    "subtitle": "subtitles.analogclock.clock_chime"
+  },
+  "clock_tick": {
+    "category": "block",
+    "sounds": [
+      {
+        "attenuation_distance": 8,
+        "name": "analogclock:pendulum_tick1"
+      },
+      {
+        "attenuation_distance": 8,
+        "name": "analogclock:pendulum_tick2"
+      },
+      {
+        "attenuation_distance": 8,
+        "name": "analogclock:pendulum_tick3"
+      },
+      {
+        "attenuation_distance": 8,
+        "name": "analogclock:pendulum_tick4"
+      },
+      {
+        "attenuation_distance": 8,
+        "name": "analogclock:pendulum_tick5"
+      }
+    ],
+    "subtitle": "subtitles.analogclock.clock_tick"
+  },
+  "clock_wind": {
+    "category": "block",
+    "sounds": [
+      {
+        "type": "event",
+        "name": "minecraft:item.spyglass.use"
+      }
+    ],
+    "subtitle": "subtitles.analogclock.clock_wind"
+  }
+}

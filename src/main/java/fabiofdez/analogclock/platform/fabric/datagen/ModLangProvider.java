@@ -8,20 +8,22 @@ import fabiofdez.analogclock.item.AnalogClockItem;
 import net.fabricmc.fabric.api.datagen.v1.FabricDataOutput;
 import net.fabricmc.fabric.api.datagen.v1.provider.FabricLanguageProvider;
 import net.minecraft.Util;
+//? > 1.21
 import net.minecraft.core.HolderLookup;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.sounds.SoundEvent;
 
+//? > 1.21
 import java.util.concurrent.CompletableFuture;
 import java.util.function.Supplier;
 
 public class ModLangProvider extends FabricLanguageProvider {
-  public ModLangProvider(FabricDataOutput dataOutput, CompletableFuture<HolderLookup.Provider> registryLookup) {
-    super(dataOutput, registryLookup);
+  public ModLangProvider(FabricDataOutput dataOutput/*? if > 1.21 >> ') {' */, CompletableFuture<HolderLookup.Provider> registryLookup) {
+    super(dataOutput/*? if > 1.21 >> ');' */, registryLookup);
   }
 
   @Override
-  public void generateTranslations(HolderLookup.Provider provider, TranslationBuilder builder) {
+  public void generateTranslations(/*? if > 1.21 >> 'TranslationBuilder' */HolderLookup.Provider provider, TranslationBuilder builder) {
     builder.add(ModBlocks.ANALOG_CLOCK.get().asItem(), "Analog Clock");
     builder.add(ModBlocks.AMETHYST_PENDULUM.get().asItem(), "Amethyst Pendulum");
 

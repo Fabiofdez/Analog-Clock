@@ -7,15 +7,6 @@ import fabiofdez.analogclock.AnalogClock;
 import fabiofdez.analogclock.block.DirectionalAlignedBlock;
 import fabiofdez.analogclock.block.state.properties.Alignment;
 import net.minecraft.client.renderer.blockentity.BlockEntityRenderer;
-//? if <= 1.21.5
-import net.minecraft.client.renderer.MultiBufferSource;
-//? if >= 1.21.11 {
-/*import net.minecraft.client.renderer.SubmitNodeCollector;
-import net.minecraft.client.renderer.state.CameraRenderState;
-import net.minecraft.client.renderer.blockentity.state.BlockEntityRenderState;
-import net.minecraft.client.renderer.rendertype.RenderTypes;
-import org.jspecify.annotations.NonNull;
-*///? }
 import net.minecraft.client.renderer.RenderType;
 import net.minecraft.client.renderer.texture.OverlayTexture;
 import net.minecraft.core.Direction;
@@ -24,14 +15,23 @@ import net.minecraft.util.ARGB;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.Vec3;
-import org.joml.Matrix4f;
+
+//? if <= 1.21.5 {
+import net.minecraft.client.renderer.MultiBufferSource;
+//? } else if >= 1.21.11 {
+/*import net.minecraft.client.renderer.SubmitNodeCollector;
+import net.minecraft.client.renderer.state.CameraRenderState;
+import net.minecraft.client.renderer.blockentity.state.BlockEntityRenderState;
+import net.minecraft.client.renderer.rendertype.RenderTypes;
+import org.jspecify.annotations.NonNull;
+*///? }
 
 import java.util.function.BiConsumer;
 import java.util.function.Function;
 
-//? if <= 1.21.5
+//? <= 1.21.5
 public abstract class AnimatedEntityRenderer<T extends BlockEntity> implements BlockEntityRenderer<T> {
-  //? if >= 1.21.11
+  //? >= 1.21.11
 //public abstract class AnimatedEntityRenderer<T extends BlockEntity, S extends BlockEntityRenderState> implements BlockEntityRenderer<T, S> {
   public static final int NO_TINT = ARGB.opaque(0xFFFFFF);
 
@@ -57,87 +57,82 @@ public abstract class AnimatedEntityRenderer<T extends BlockEntity> implements B
     Vec3 center = new Vec3(0.5, 0.5, 0.5).relative(shiftDirection, offsetCenter.apply(isFront));
     float rotation = getModelRotation(facingDirection);
 
-    //? if > 1.21.1
+    //? > 1.21.1
     matrices.translate(center);
-    //? if <= 1.21.1
+    //? <= 1.21.1
     //matrices.translate(center.x, center.y, center.z);
+
     matrices.rotateAround(Axis.YP.rotationDegrees(rotation), 0, 0, 0);
   }
 
   protected static void drawStaticAsset(ResourceLocation texture, int tint, RenderContext ctx) {
-    renderTexture(texture, ctx, (lastPose, buf) -> drawQuad(buf, tint, lastPose.pose(), ctx.light()));
+    renderTexture(texture, ctx, (lastPose, buf) -> drawQuad(buf, tint, lastPose, ctx.light()));
   }
 
   protected static void drawAnimatedAsset(ResourceLocation texture, int tint, int frameOffset, int numFrames, RenderContext ctx) {
     renderTexture(
         texture,
         ctx,
-        (lastPose, buf) -> drawQuad(buf, tint, frameOffset, numFrames, lastPose.pose(), ctx.light())
+        (lastPose, buf) -> drawQuad(buf, tint, frameOffset, numFrames, lastPose, ctx.light())
     );
   }
 
   protected static void renderTexture(ResourceLocation texture, RenderContext ctx, BiConsumer<PoseStack.Pose, VertexConsumer> renderHandler) {
 
-    //? if <= 1.21.5
+    //? <= 1.21.5
     RenderType renderType = RenderType.entityCutoutNoCull(texture);
-    //? if >= 1.21.11
+    //? >= 1.21.11
     //RenderType renderType = RenderTypes.entityCutoutNoCull(texture);
 
-    //? if <= 1.21.5
+    //? <= 1.21.5
     renderHandler.accept(ctx.matrices().last(), ctx.vertexConsumers().getBuffer(renderType));
-    //? if >= 1.21.11
+    //? >= 1.21.11
     //ctx.queue().submitCustomGeometry(ctx.matrices(), renderType, renderHandler::accept);
   }
 
-  protected static void drawQuad(VertexConsumer buffer, int tint, int frameOffset, int numFrames, Matrix4f matrix, int light) {
+  protected static void drawQuad(VertexConsumer buffer, int tint, PoseStack.Pose pose, int light) {
+    drawQuad(buffer, tint, 0, 1, pose, light);
+  }
+
+  protected static void drawQuad(VertexConsumer buffer, int tint, int frameOffset, int numFrames, PoseStack.Pose pose, int light) {
     float vMin = (float) (frameOffset + 1) / numFrames;
     float vMax = (float) (frameOffset) / numFrames;
 
-    buffer
-        .addVertex(matrix, -0.5f, -0.5f, 0f)
-        .setColor(tint)
-        .setUv(0f, vMin)
-        .setOverlay(OverlayTexture.NO_OVERLAY)
-        .setLight(light)
-        .setNormal(0, 0, 1);
-
-    buffer
-        .addVertex(matrix, 0.5f, -0.5f, 0f)
-        .setColor(tint)
-        .setUv(1f, vMin)
-        .setOverlay(OverlayTexture.NO_OVERLAY)
-        .setLight(light)
-        .setNormal(0, 0, 1);
-
-    buffer
-        .addVertex(matrix, 0.5f, 0.5f, 0f)
-        .setColor(tint)
-        .setUv(1f, vMax)
-        .setOverlay(OverlayTexture.NO_OVERLAY)
-        .setLight(light)
-        .setNormal(0, 0, 1);
-
-    buffer
-        .addVertex(matrix, -0.5f, 0.5f, 0f)
-        .setColor(tint)
-        .setUv(0f, vMax)
-        .setOverlay(OverlayTexture.NO_OVERLAY)
-        .setLight(light)
-        .setNormal(0, 0, 1);
+    addVertex(buffer, pose, -0.5f, -0.5f, tint, 0f, vMin, light);
+    addVertex(buffer, pose, 0.5f, -0.5f, tint, 1f, vMin, light);
+    addVertex(buffer, pose, 0.5f, 0.5f, tint, 1f, vMax, light);
+    addVertex(buffer, pose, -0.5f, 0.5f, tint, 0f, vMax, light);
   }
 
-  protected static void drawQuad(VertexConsumer buffer, int tint, Matrix4f matrix, int light) {
-    drawQuad(buffer, tint, 0, 1, matrix, light);
+  private static void addVertex(VertexConsumer buffer, PoseStack.Pose pose, float x, float y, int tint, float u, float v, int light) {
+    //? if < 1.21 {
+    /*buffer
+        .vertex(pose.pose(), x, y, 0f)
+        .color(tint)
+        .uv(u, v)
+        .overlayCoords(OverlayTexture.NO_OVERLAY)
+        .uv2(light)
+        .normal(pose.normal(), 0, 0, 1)
+        .endVertex();
+    *///? } else {
+    buffer
+        .addVertex(pose.pose(), x, y, 0f)
+        .setColor(tint)
+        .setUv(u, v)
+        .setOverlay(OverlayTexture.NO_OVERLAY)
+        .setLight(light)
+        .setNormal(0, 0, 1);
+    //? }
   }
 
-  //? if >= 1.21.11 {
+  //? >= 1.21.11 {
   /*@Override
   public void submit(S renderState, @NonNull PoseStack matrices, @NonNull SubmitNodeCollector queue, @NonNull CameraRenderState cameraState) {
     submitRender(renderState, new RenderContext(matrices, queue, renderState.lightCoords));
   }
   *///? }
 
-  //? if <= 1.21.5 {
+  //? <= 1.21.5 {
   protected abstract Object parseRenderState(T blockEntity);
 
   @Override
