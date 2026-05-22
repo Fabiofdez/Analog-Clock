@@ -1,7 +1,7 @@
 package fabiofdez.analogclock;
 
-import fabiofdez.analogclock.entity.AnalogClockFace;
-import fabiofdez.analogclock.entity.PendulumEntity;
+import fabiofdez.analogclock.block.entity.AnalogClockFace;
+import fabiofdez.analogclock.block.entity.PendulumEntity;
 //? !forge
 import net.minecraft.core.registries.BuiltInRegistries;
 //? if fabric {

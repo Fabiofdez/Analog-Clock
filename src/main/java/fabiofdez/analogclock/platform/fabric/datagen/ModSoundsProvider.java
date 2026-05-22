@@ -6,6 +6,7 @@ import fabiofdez.analogclock.AnalogClock;
 import fabiofdez.analogclock.ModSounds;
 import net.fabricmc.fabric.api.client.datagen.v1.builder.SoundTypeBuilder;
 import net.fabricmc.fabric.api.client.datagen.v1.provider.FabricSoundsProvider;
+import net.minecraft.core.Holder;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.data.PackOutput;
 import net.minecraft.sounds.SoundEvent;
@@ -23,36 +24,15 @@ public class ModSoundsProvider extends FabricSoundsProvider {
   }
 
   @Override
-  protected void configure(HolderLookup.Provider provider, SoundExporter soundExporter) {
-    buildSoundEvent(
-        soundExporter,
-        ModSounds.CLOCK_TICK,
-        (builder) -> builder
-            .sound(ofFile("pendulum_tick1").attenuationDistance(8))
-            .sound(ofFile("pendulum_tick2").attenuationDistance(8))
-            .sound(ofFile("pendulum_tick3").attenuationDistance(8))
-            .sound(ofFile("pendulum_tick4").attenuationDistance(8))
-            .sound(ofFile("pendulum_tick5").attenuationDistance(8))
-    );
-
-    buildSoundEvent(soundExporter, ModSounds.CLOCK_WIND, (builder) -> builder.sound(ofEvent(SoundEvents.SPYGLASS_USE)));
-
-    buildSoundEvent(
-        soundExporter,
-        ModSounds.CLOCK_CHIME,
-        (builder) -> builder.sound(ofEvent(SoundEvents.BELL_BLOCK).volume(0.04F).attenuationDistance(48))
-    );
-
-    buildSoundEvent(
-        soundExporter,
-        ModSounds.CHIME_RESONATE,
-        (builder) -> builder.sound(ofEvent(SoundEvents.NOTE_BLOCK_CHIME.value()).pitch(0.5F).attenuationDistance(48))
-    );
-  }
-
-  private static void buildSoundEvent(SoundExporter exporter, Supplier<SoundEvent> sound, Function<SoundTypeBuilder, SoundTypeBuilder> predicate) {
-    SoundTypeBuilder builder = blockSound(sound.get());
-    exporter.add(sound.get(), predicate.apply(builder));
+  protected void configure(HolderLookup.Provider provider, SoundExporter exporter) {
+    SoundPacker
+        .outputTo(exporter)
+        .add(ModSounds.CLOCK_TICK, ofFile("pendulum_tick").attenuationDistance(8), 5)
+        .add(ModSounds.CLOCK_WIND, ofEvent(SoundEvents.SPYGLASS_USE))
+        .add(ModSounds.CLOCK_CHIME, ofEvent(SoundEvents.BELL_BLOCK).volume(0.04F).attenuationDistance(48))
+        .add(ModSounds.CHIME_RESONATE, ofEvent(SoundEvents.NOTE_BLOCK_CHIME).pitch(0.5F).attenuationDistance(48))
+        .add(ModSounds.CLOCK_PLATING_ADD, ofEvent(SoundEvents.COPPER_STEP).volume(0.6F).pitch(1.5F))
+        .add(ModSounds.CLOCK_PLATING_SCRAPE, ofEvent(SoundEvents.AXE_SCRAPE).volume(0.6F).pitch(1.5F));
   }
 
   private static SoundTypeBuilder blockSound(SoundEvent sound) {
@@ -63,13 +43,39 @@ public class ModSoundsProvider extends FabricSoundsProvider {
     return SoundTypeBuilder.EntryBuilder.ofFile(AnalogClock.id(path));
   }
 
-  private static SoundTypeBuilder.EntryBuilder ofEvent(SoundEvent sound) {
-    return SoundTypeBuilder.EntryBuilder.ofEvent(sound);
+  private static SoundTypeBuilder.EntryBuilder ofEvent(SoundEvent event) {
+    return SoundTypeBuilder.EntryBuilder.ofEvent(event);
+  }
+
+  private static SoundTypeBuilder.EntryBuilder ofEvent(Holder<SoundEvent> event) {
+    return SoundTypeBuilder.EntryBuilder.ofEvent(event);
   }
 
   @Override
   public @NotNull String getName() {
     return "ModSoundsProvider";
+  }
+
+  private record SoundPacker(SoundExporter exporter) {
+
+    static SoundPacker outputTo(SoundExporter exporter) {
+      return new SoundPacker(exporter);
+    }
+
+    private SoundPacker buildSoundEvent(Supplier<SoundEvent> sound, Function<SoundTypeBuilder, SoundTypeBuilder> predicate) {
+      SoundTypeBuilder builder = blockSound(sound.get());
+      this.exporter.add(sound.get(), predicate.apply(builder));
+
+      return this;
+    }
+
+    SoundPacker add(Supplier<SoundEvent> target, SoundTypeBuilder.EntryBuilder soundEntry) {
+      return buildSoundEvent(target, (builder) -> builder.sound(soundEntry));
+    }
+
+    SoundPacker add(Supplier<SoundEvent> target, SoundTypeBuilder.EntryBuilder soundEntry, int numVariants) {
+      return buildSoundEvent(target, (builder) -> builder.sound(soundEntry, numVariants));
+    }
   }
 }
 //?}

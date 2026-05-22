@@ -2,6 +2,7 @@ package fabiofdez.analogclock.block;
 
 import fabiofdez.analogclock.color.ClockFaceStyle;
 import net.minecraft.world.level.block.Block;
+import net.minecraft.world.level.block.RenderShape;
 import net.minecraft.world.level.block.state.BlockBehaviour;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.StateDefinition;
@@ -20,6 +21,11 @@ public class ClockFaceBlock extends Block {
   protected void createBlockStateDefinition(StateDefinition.Builder<Block, BlockState> builder) {
     super.createBlockStateDefinition(builder);
     builder.add(FACE_TINT);
+  }
+
+  @Override
+  protected RenderShape getRenderShape(BlockState blockState) {
+    return RenderShape.INVISIBLE;
   }
 
   static {

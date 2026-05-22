@@ -33,6 +33,8 @@ public class ModSounds {
   public static Supplier<SoundEvent> CLOCK_TICK = register("clock_tick");
   public static Supplier<SoundEvent> CLOCK_CHIME = register("clock_chime");
   public static Supplier<SoundEvent> CHIME_RESONATE = register("chime_resonate");
+  public static Supplier<SoundEvent> CLOCK_PLATING_ADD = register("clock_plating_add");
+  public static Supplier<SoundEvent> CLOCK_PLATING_SCRAPE = register("clock_plating_scrape");
 
   //? if fabric {
   private static Supplier<SoundEvent> register(String id) {

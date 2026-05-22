@@ -23,6 +23,30 @@
     ],
     "subtitle": "subtitles.analogclock.clock_chime"
   },
+  "clock_plating_add": {
+    "category": "block",
+    "sounds": [
+      {
+        "type": "event",
+        "name": "minecraft:block.copper.step",
+        "pitch": 1.5,
+        "volume": 0.6
+      }
+    ],
+    "subtitle": "subtitles.analogclock.clock_plating_add"
+  },
+  "clock_plating_scrape": {
+    "category": "block",
+    "sounds": [
+      {
+        "type": "event",
+        "name": "minecraft:item.axe.scrape",
+        "pitch": 1.5,
+        "volume": 0.6
+      }
+    ],
+    "subtitle": "subtitles.analogclock.clock_plating_scrape"
+  },
   "clock_tick": {
     "category": "block",
     "sounds": [

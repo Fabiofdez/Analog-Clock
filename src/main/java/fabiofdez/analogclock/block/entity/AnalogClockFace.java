@@ -1,4 +1,4 @@
-package fabiofdez.analogclock.entity;
+package fabiofdez.analogclock.block.entity;
 
 import fabiofdez.analogclock.ModBlockEntities;
 import fabiofdez.analogclock.ModSounds;
@@ -34,8 +34,8 @@ public class AnalogClockFace extends BaseBlockEntity {
   private static final int INITIAL_CLOCK_FRAME = 3 * UNIT_HOUR_FRAMES * HOUR_FRAMES_RADIX; // 3:00
   private static final int BRUSH_DURATION_TICKS = 15;
 
-  private final ExtraDatum<Integer> currentFrame = ExtraDatum.ofInt("clockFrame");
-  private final ClockHandsInterpolator ANIMATOR;
+  private final ExtraDatum<Integer> CURRENT_FRAME = ExtraDatum.ofInt("clockFrame");
+  private final ClockHandsInterpolator HANDS_ANIMATOR;
 
   private String brushingPlayerUUID = null;
   private int brushEventTicks = 0;
@@ -43,8 +43,8 @@ public class AnalogClockFace extends BaseBlockEntity {
   public AnalogClockFace(BlockPos pos, BlockState state) {
     super(ModBlockEntities.CLOCK_FACE_ENTITY.get(), pos, state);
 
-    currentFrame.set(INITIAL_CLOCK_FRAME);
-    ANIMATOR = new ClockHandsInterpolator();
+    CURRENT_FRAME.set(INITIAL_CLOCK_FRAME);
+    HANDS_ANIMATOR = new ClockHandsInterpolator();
   }
 
   public static void tick(Level level, BlockPos pos, BlockState state, BlockEntity entity) {
@@ -54,7 +54,7 @@ public class AnalogClockFace extends BaseBlockEntity {
 
     int nextFrame;
     if (level.dimension() == Level.OVERWORLD) {
-      boolean animationInProgress = clockFace.ANIMATOR.inProgress();
+      boolean animationInProgress = clockFace.HANDS_ANIMATOR.inProgress();
       nextFrame = calculateNextFrame(level, clockFace);
       if (nextFrame == clockFace.getClockFrame()) return;
 
@@ -64,14 +64,14 @@ public class AnalogClockFace extends BaseBlockEntity {
       if (nextFrame == clockFace.getClockFrame()) return;
     }
 
-    clockFace.currentFrame.set(nextFrame);
+    clockFace.CURRENT_FRAME.set(nextFrame);
     setChanged(level, pos, state);
 
     ((ServerLevel) level).getChunkSource().blockChanged(pos);
   }
 
   public int getClockFrame() {
-    return currentFrame.get();
+    return CURRENT_FRAME.get();
   }
 
   public int getHourFrame() {
@@ -85,7 +85,7 @@ public class AnalogClockFace extends BaseBlockEntity {
   }
 
   private static int calculateNextFrame(Level level, AnalogClockFace clockFace) {
-    ClockHandsInterpolator animator = clockFace.ANIMATOR;
+    ClockHandsInterpolator animator = clockFace.HANDS_ANIMATOR;
     long dayTime = level.getDayTime();
     int nextFrame;
 
@@ -107,7 +107,7 @@ public class AnalogClockFace extends BaseBlockEntity {
   }
 
   private static int goToRandomFrame(Level level, AnalogClockFace clockFace) {
-    ClockHandsInterpolator animator = clockFace.ANIMATOR;
+    ClockHandsInterpolator animator = clockFace.HANDS_ANIMATOR;
     if (animator.inProgress()) return animator.step();
 
     RandomSource rand = level.getRandom();
@@ -129,7 +129,7 @@ public class AnalogClockFace extends BaseBlockEntity {
 
     RandomSource rand = level.getRandom();
     float chance = rand.nextFloat();
-    float animationSpeed = clockFace.ANIMATOR.speed(); // range: [1, 5]
+    float animationSpeed = clockFace.HANDS_ANIMATOR.speed(); // range: [1, 5]
     if (chance / animationSpeed > 0.5F) return;
 
     float pitch = (animationSpeed + 9) / 10; // range: [1, 1.4]
@@ -167,12 +167,12 @@ public class AnalogClockFace extends BaseBlockEntity {
 
   @Override
   protected void saveData(ExtraData output) {
-    output.save(currentFrame);
+    output.save(CURRENT_FRAME);
   }
 
   @Override
   protected void loadData(ExtraData input) {
-    input.load(currentFrame);
+    input.load(CURRENT_FRAME);
   }
 
   @Override

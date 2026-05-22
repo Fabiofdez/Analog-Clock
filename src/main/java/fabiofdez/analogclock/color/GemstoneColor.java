@@ -1,6 +1,6 @@
 package fabiofdez.analogclock.color;
 
-import fabiofdez.analogclock.entity.PendulumEntity;
+import fabiofdez.analogclock.block.entity.PendulumEntity;
 import net.minecraft.util.ARGB;
 import net.minecraft.world.level.block.entity.BlockEntity;
 

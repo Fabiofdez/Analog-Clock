@@ -75,6 +75,7 @@ stonecutter parameters {
 
 		string(current.parsed >= "1.21") {
 			replace("public VoxelShape getShape", "protected VoxelShape getShape")
+			replace("public RenderShape getRenderShape", "protected RenderShape getRenderShape")
 			replace("public BlockState updateShape", "protected BlockState updateShape")
 			replace("public boolean isCollisionShapeFullBlock", "protected boolean isCollisionShapeFullBlock")
 			replace("public boolean canSurvive", "protected boolean canSurvive")

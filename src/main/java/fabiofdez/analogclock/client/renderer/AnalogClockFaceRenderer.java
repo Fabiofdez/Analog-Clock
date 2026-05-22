@@ -4,7 +4,7 @@ import com.mojang.blaze3d.vertex.PoseStack;
 import fabiofdez.analogclock.block.AnalogClockBlock;
 import fabiofdez.analogclock.client.renderer.state.ClockFaceRenderState;
 import fabiofdez.analogclock.color.ClockFaceStyle;
-import fabiofdez.analogclock.entity.AnalogClockFace;
+import fabiofdez.analogclock.block.entity.AnalogClockFace;
 import net.minecraft.client.renderer.blockentity.BlockEntityRendererProvider;
 //? if >= 1.21.11 {
 /*import net.minecraft.client.renderer.feature.ModelFeatureRenderer;
@@ -12,6 +12,7 @@ import net.minecraft.world.phys.Vec3;
 import org.jspecify.annotations.NonNull;
 *///? }
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.util.ARGB;
 
 //? if <= 1.21.5
 public class AnalogClockFaceRenderer extends AnimatedEntityRenderer<AnalogClockFace> {
@@ -64,20 +65,26 @@ public class AnalogClockFaceRenderer extends AnimatedEntityRenderer<AnalogClockF
 
     ClockFaceStyle.Plating plating = clockFace.getBlockState().getValue(AnalogClockBlock.HANDS_PLATING);
     boolean hasPlating = plating != ClockFaceStyle.HANDS_NO_PLATING;
-    int tint = plating.getColor();
+    int metalColor = plating.getColor();
+    int markingsTint = metalColor;
+
+    if (!hasPlating) {
+      ClockFaceStyle.DyeColor faceDye = clockFace.getBlockState().getValue(AnalogClockBlock.FACE_TINT);
+      markingsTint = ARGB.lerp(0.75F, markingsTint, faceDye.getColor());
+    }
 
     ResourceLocation dialMarksTexture = hasPlating ? DIAL_MARKS_PLATED_TEXTURE : DIAL_MARKS_TEXTURE;
     ResourceLocation minuteHandTexture = hasPlating ? MINUTE_PLATED_TEXTURE : MINUTE_TEXTURE;
     ResourceLocation hourHandTexture = hasPlating ? HOUR_PLATED_TEXTURE : HOUR_TEXTURE;
 
     orientWithAlignment(matrices, clockFace.getBlockState(), (isFront) -> 0.5 + (isFront ? 0 : -CLOCK_MODEL_THICKNESS));
-    drawStaticAsset(dialMarksTexture, tint, ctx);
+    drawStaticAsset(dialMarksTexture, markingsTint, ctx);
 
     matrices.translate(0, 0, CLOCK_HAND_OFFSET);
-    drawAnimatedAsset(minuteHandTexture, tint, clockFace.getMinuteFrame(), numFrames, ctx);
+    drawAnimatedAsset(minuteHandTexture, metalColor, clockFace.getMinuteFrame(), numFrames, ctx);
 
     matrices.translate(0, 0, CLOCK_HAND_OFFSET);
-    drawAnimatedAsset(hourHandTexture, tint, clockFace.getHourFrame(), numFrames, ctx);
+    drawAnimatedAsset(hourHandTexture, metalColor, clockFace.getHourFrame(), numFrames, ctx);
 
     matrices.popPose();
   }

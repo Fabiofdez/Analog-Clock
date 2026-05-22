@@ -2,7 +2,7 @@ package fabiofdez.analogclock.client.renderer;
 
 import com.mojang.blaze3d.vertex.PoseStack;
 import fabiofdez.analogclock.client.renderer.state.PendulumRenderState;
-import fabiofdez.analogclock.entity.PendulumEntity;
+import fabiofdez.analogclock.block.entity.PendulumEntity;
 import net.minecraft.client.renderer.blockentity.BlockEntityRendererProvider;
 //? if >= 1.21.11 {
 /*import net.minecraft.client.renderer.feature.ModelFeatureRenderer;

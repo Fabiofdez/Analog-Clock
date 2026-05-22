@@ -4,7 +4,7 @@ package fabiofdez.analogclock.block;
 import com.mojang.serialization.MapCodec;
 import fabiofdez.analogclock.ModBlockEntities;
 import fabiofdez.analogclock.ModBlocks;
-import fabiofdez.analogclock.entity.PendulumEntity;
+import fabiofdez.analogclock.block.entity.PendulumEntity;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.world.item.context.BlockPlaceContext;

@@ -1,6 +1,6 @@
 package fabiofdez.analogclock.client.renderer.state;
 
-import fabiofdez.analogclock.entity.AnalogClockFace;
+import fabiofdez.analogclock.block.entity.AnalogClockFace;
 //? >= 1.21.11
 //import net.minecraft.client.renderer.blockentity.state.BlockEntityRenderState;
 import net.minecraft.world.level.block.state.BlockState;

@@ -3,8 +3,9 @@
 package fabiofdez.analogclock.block;
 
 import fabiofdez.analogclock.ModBlockEntities;
+import fabiofdez.analogclock.ModSounds;
 import fabiofdez.analogclock.color.ClockFaceStyle;
-import fabiofdez.analogclock.entity.AnalogClockFace;
+import fabiofdez.analogclock.block.entity.AnalogClockFace;
 import fabiofdez.analogclock.item.AnalogClockItem;
 import net.minecraft.core.BlockPos;
 import net.minecraft.sounds.SoundEvents;
@@ -34,7 +35,7 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 //? if < 1.21 {
 /*import net.minecraft.nbt.CompoundTag;
-*///? } else {
+    *///? } else {
 import com.mojang.serialization.MapCodec;
 import net.minecraft.world.level.block.HorizontalDirectionalBlock;
 //? }
@@ -119,7 +120,7 @@ public class AnalogClockBlock extends DirectionalAlignedBlock implements EntityB
 
       if (!level.isClientSide()) {
         level.setBlockAndUpdate(pos, state.setValue(HANDS_PLATING, ClockFaceStyle.HANDS_NO_PLATING));
-        level.playSound(null, pos, SoundEvents.AXE_SCRAPE, SoundSource.BLOCKS, 0.6F, 1.5F);
+        level.playSound(null, pos, ModSounds.CLOCK_PLATING_SCRAPE.get(), SoundSource.BLOCKS);
         popResourceFromFace(level, pos, state.getValue(FACING), new ItemStack(plating.item()));
       }
 
@@ -148,7 +149,7 @@ public class AnalogClockBlock extends DirectionalAlignedBlock implements EntityB
       if (level.isClientSide()) return InteractionResult.SUCCESS;
 
       level.setBlockAndUpdate(pos, state.setValue(HANDS_PLATING, ClockFaceStyle.Plating.getMetalOf(item)));
-      level.playSound(null, pos, SoundEvents.COPPER_STEP, SoundSource.BLOCKS, 0.6F, 1.5F);
+      level.playSound(null, pos, ModSounds.CLOCK_PLATING_ADD.get(), SoundSource.BLOCKS);
 
       //? <= 1.20.1
       //stack.shrink(1);
@@ -171,8 +172,20 @@ public class AnalogClockBlock extends DirectionalAlignedBlock implements EntityB
 
       //? if < 1.21 {
       /*CompoundTag itemTag = stack.getOrCreateTag();
-      itemTag.putString(AnalogClockItem.FACE_TINT, state.getValue(FACE_TINT).dyeId());
-      itemTag.putString(AnalogClockItem.HANDS_PLATING, state.getValue(HANDS_PLATING).metalId());
+      String dyeId = state.getValue(FACE_TINT).dyeId();
+      String metalId = state.getValue(HANDS_PLATING).metalId();
+
+      if (dyeId == null || dyeId.equals(ClockFaceStyle.FACE_NO_DYE.dyeId())) {
+        itemTag.remove(AnalogClockItem.FACE_TINT);
+      } else {
+        itemTag.putString(AnalogClockItem.FACE_TINT, dyeId);
+      }
+
+      if (metalId == null || metalId.equals(ClockFaceStyle.HANDS_NO_PLATING.metalId())) {
+        itemTag.remove(AnalogClockItem.HANDS_PLATING);
+      } else {
+        itemTag.putString(AnalogClockItem.HANDS_PLATING, metalId);
+      }
       *///? } else {
       stack.set(AnalogClockItem.FACE_TINT, state.getValue(FACE_TINT).dyeId());
       stack.set(AnalogClockItem.HANDS_PLATING, state.getValue(HANDS_PLATING).metalId());

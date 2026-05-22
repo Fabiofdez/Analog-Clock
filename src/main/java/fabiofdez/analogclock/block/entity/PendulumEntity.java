@@ -1,4 +1,4 @@
-package fabiofdez.analogclock.entity;
+package fabiofdez.analogclock.block.entity;
 
 import fabiofdez.analogclock.ModBlockEntities;
 import fabiofdez.analogclock.ModSounds;
@@ -47,11 +47,12 @@ public class PendulumEntity extends BaseBlockEntity {
   private final ExtraDatum<Integer> SWING_FRAME_OFFSET = ExtraDatum.ofInt("swingOffset").setDefault(-1);
   private final ExtraDatum<Integer> CURRENT_SWING_FRAME = ExtraDatum.ofInt("swingFrame").setDefault(0);
   private final ExtraDatum<Boolean> SWINGING = ExtraDatum.ofBoolean("swinging").setDefault(true);
-  private final GravityInterpolator SWING_INTERPOLATOR;
 
   private final ExtraDatum<Integer> CURRENT_COLOR_PHASE = ExtraDatum.ofInt("colorPhase").setDefault(0);
   private final ExtraDatum<Boolean> IN_OVERWORLD = ExtraDatum.ofBoolean("inOverworld").setDefault(true);
   private final ExtraDatum<Integer> ALTERNATE_TINT = ExtraDatum.ofInt("alternateTint");
+
+  private final GravityInterpolator SWING_ANIMATOR;
   private final PhaseTintInterpolator COLOR_PHASE_ANIMATOR;
 
   private boolean isChimeRinging = false;
@@ -81,7 +82,7 @@ public class PendulumEntity extends BaseBlockEntity {
     super(ModBlockEntities.PENDULUM_ENTITY.get(), pos, state);
 
     ALTERNATE_TINT.set(GemstoneColor.NO_COLOR);
-    SWING_INTERPOLATOR = new GravityInterpolator();
+    SWING_ANIMATOR = new GravityInterpolator();
     COLOR_PHASE_ANIMATOR = new PhaseTintInterpolator();
   }
 
@@ -134,7 +135,7 @@ public class PendulumEntity extends BaseBlockEntity {
   }
 
   private boolean settled() {
-    return !SWING_INTERPOLATOR.inProgress() && settled(getSwingFrame());
+    return !SWING_ANIMATOR.inProgress() && settled(getSwingFrame());
   }
 
   private static int calculateNextSwingFrame(PendulumEntity pendulum, Level level, long dayTime) {
@@ -158,7 +159,7 @@ public class PendulumEntity extends BaseBlockEntity {
   }
 
   private static int stopSwinging(PendulumEntity pendulum) {
-    GravityInterpolator animator = pendulum.SWING_INTERPOLATOR;
+    GravityInterpolator animator = pendulum.SWING_ANIMATOR;
 
     if (!animator.isInitialized() || !animator.inProgress()) {
       animator.interp(pendulum.getSwingFrame());

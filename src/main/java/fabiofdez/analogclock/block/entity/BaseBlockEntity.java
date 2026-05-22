@@ -1,4 +1,4 @@
-package fabiofdez.analogclock.entity;
+package fabiofdez.analogclock.block.entity;
 
 import com.mojang.serialization.Codec;
 import net.minecraft.core.BlockPos;

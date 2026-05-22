@@ -31,6 +31,8 @@ public class ModLangProvider extends FabricLanguageProvider {
     builder.add(subtitleFor(ModSounds.CLOCK_TICK), "Pendulum ticking");
     builder.add(subtitleFor(ModSounds.CLOCK_CHIME), "Clock chime ringing");
     builder.add(subtitleFor(ModSounds.CHIME_RESONATE), "Clock chime resonating");
+    builder.add(subtitleFor(ModSounds.CLOCK_PLATING_ADD), "Plating clock hands");
+    builder.add(subtitleFor(ModSounds.CLOCK_PLATING_SCRAPE), "Pickaxe scraping");
 
     builder.add(AnalogClockItem.Tooltip.DYE.getTranslationKey(), "%1$s Dial");
     builder.add(AnalogClockItem.Tooltip.PLATING.getTranslationKey(), "%1$s-Plated Hands");
