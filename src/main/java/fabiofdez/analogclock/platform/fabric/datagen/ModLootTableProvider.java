@@ -20,6 +20,7 @@ public class ModLootTableProvider extends FabricBlockLootTableProvider {
   public void generate() {
     dropSelf(ModBlocks.ANALOG_CLOCK.get());
     dropSelf(ModBlocks.AMETHYST_PENDULUM.get());
+    dropSelf(ModBlocks.LONG_AMETHYST_PENDULUM.get());
   }
 }
 //?}

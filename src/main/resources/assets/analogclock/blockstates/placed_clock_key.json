@@ -1,0 +1,7 @@
+{
+  "variants": {
+    "": {
+      "model": "analogclock:block/placed_clock_key"
+    }
+  }
+}

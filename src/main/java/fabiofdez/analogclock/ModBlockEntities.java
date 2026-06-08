@@ -1,31 +1,33 @@
 package fabiofdez.analogclock;
 
 import fabiofdez.analogclock.block.entity.AnalogClockFace;
+import fabiofdez.analogclock.block.entity.LongPendulumEntity;
 import fabiofdez.analogclock.block.entity.PendulumEntity;
-//? !forge
-import net.minecraft.core.registries.BuiltInRegistries;
-//? if fabric {
-import net.fabricmc.fabric.api.object.builder.v1.block.entity.FabricBlockEntityTypeBuilder;
-import net.minecraft.core.Registry;
-//? } else {
-/*import net.neoforged.neoforge.registries.DeferredBlock;
-*///? }
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.entity.BlockEntityType;
+
+import java.util.function.Supplier;
+
+//? fabric {
+import net.fabricmc.fabric.api.object.builder.v1.block.entity.FabricBlockEntityTypeBuilder;
+import net.minecraft.core.Registry;
+//? }
+
 //? neoforge {
 /*import net.neoforged.bus.api.IEventBus;
+import net.neoforged.neoforge.registries.DeferredBlock;
 import net.neoforged.neoforge.registries.DeferredRegister;
 *///? }
-//? forge {
+
+//? if forge {
 /*import net.minecraftforge.eventbus.api.IEventBus;
 import net.minecraftforge.registries.DeferredRegister;
 import net.minecraftforge.registries.ForgeRegistries;
-*///? }
-//? <= 1.21.1
-//import java.util.Set;
-
-import java.util.function.Supplier;
+import net.minecraftforge.registries.RegistryObject;
+*///? } else {
+import net.minecraft.core.registries.BuiltInRegistries;
+//? }
 
 public class ModBlockEntities {
   //? !fabric {
@@ -44,14 +46,19 @@ public class ModBlockEntities {
       ModBlocks.ANALOG_CLOCK
   );
   public static final Supplier<BlockEntityType<PendulumEntity>> PENDULUM_ENTITY = register(
-      "gemstone",
+      "pendulum",
       PendulumEntity::new,
       ModBlocks.AMETHYST_PENDULUM
+  );
+  public static final Supplier<BlockEntityType<LongPendulumEntity>> LONG_PENDULUM_ENTITY = register(
+      "long_pendulum",
+      LongPendulumEntity::new,
+      ModBlocks.LONG_AMETHYST_PENDULUM
   );
 
   //? if fabric {
   private static <T extends BlockEntity> Supplier<BlockEntityType<T>> register(String name, FabricBlockEntityTypeBuilder.Factory<? extends T> entityFactory, Supplier<Block> block) {
-    var blockEntity = Registry.register(
+    BlockEntityType<T> blockEntity = Registry.register(
         BuiltInRegistries.BLOCK_ENTITY_TYPE,
         AnalogClock.id(name),
         FabricBlockEntityTypeBuilder.<T>create(entityFactory, block.get()).build()

@@ -1,0 +1,16 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "misc",
+  "key": {
+    "c": "minecraft:copper_ingot",
+    "i": "minecraft:iron_ingot"
+  },
+  "pattern": [
+    "c c",
+    " i "
+  ],
+  "result": {
+    "count": 1,
+    "id": "analogclock:clock_key"
+  }
+}

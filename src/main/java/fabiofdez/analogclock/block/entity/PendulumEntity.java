@@ -8,9 +8,6 @@ import fabiofdez.analogclock.util.FrameInterpolator;
 import fabiofdez.analogclock.util.GravityInterpolator;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
-import net.minecraft.network.protocol.Packet;
-import net.minecraft.network.protocol.game.ClientGamePacketListener;
-import net.minecraft.network.protocol.game.ClientboundBlockEntityDataPacket;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.sounds.SoundSource;
 import net.minecraft.util.RandomSource;
@@ -18,8 +15,8 @@ import net.minecraft.world.level.GameRules;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.entity.BlockEntity;
+import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.state.BlockState;
-import org.jetbrains.annotations.Nullable;
 
 import java.util.List;
 
@@ -79,7 +76,11 @@ public class PendulumEntity extends BaseBlockEntity {
   }
 
   public PendulumEntity(BlockPos pos, BlockState state) {
-    super(ModBlockEntities.PENDULUM_ENTITY.get(), pos, state);
+    this(ModBlockEntities.PENDULUM_ENTITY.get(), pos, state);
+  }
+
+  public PendulumEntity(BlockEntityType<?> type, BlockPos pos, BlockState state) {
+    super(type, pos, state);
 
     ALTERNATE_TINT.set(GemstoneColor.NO_COLOR);
     SWING_ANIMATOR = new GravityInterpolator();
@@ -162,7 +163,7 @@ public class PendulumEntity extends BaseBlockEntity {
     GravityInterpolator animator = pendulum.SWING_ANIMATOR;
 
     if (!animator.isInitialized() || !animator.inProgress()) {
-      animator.interp(pendulum.getSwingFrame());
+      if (pendulum.SWINGING.get()) animator.interp(pendulum.getSwingFrame());
     }
 
     int nextFrame = animator.step();
@@ -300,11 +301,6 @@ public class PendulumEntity extends BaseBlockEntity {
     input.load(SWING_FRAME_OFFSET);
     input.load(CURRENT_SWING_FRAME);
     input.load(CURRENT_COLOR_PHASE);
-  }
-
-  @Override
-  public @Nullable Packet<ClientGamePacketListener> getUpdatePacket() {
-    return ClientboundBlockEntityDataPacket.create(this);
   }
 
   static class PhaseTintInterpolator extends FrameInterpolator {

@@ -5,6 +5,9 @@ import net.minecraft.core.BlockPos;
 //? > 1.20.1
 import net.minecraft.core.HolderLookup;
 import net.minecraft.nbt.CompoundTag;
+import net.minecraft.network.protocol.Packet;
+import net.minecraft.network.protocol.game.ClientGamePacketListener;
+import net.minecraft.network.protocol.game.ClientboundBlockEntityDataPacket;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.state.BlockState;
@@ -13,6 +16,7 @@ import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.storage.ValueOutput;
 *///? }
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 //? > 1.21.1
 import java.util.Optional;
@@ -25,17 +29,15 @@ public abstract class BaseBlockEntity extends BlockEntity {
     super(type, pos, state);
   }
 
-  protected void saveData(ExtraData output) {
-  }
+  protected abstract void saveData(ExtraData output);
 
-  protected void loadData(ExtraData input) {
-  }
+  protected abstract void loadData(ExtraData input);
 
   @Override
       //? if <= 1.21.5
   protected void saveAdditional(@NotNull CompoundTag output /*? if <= 1.21.5 && > 1.20.1 >> ') {' */, HolderLookup.Provider registryLookup) {
-      //? if >= 1.21.11
-  //protected void saveAdditional(ValueOutput output) {
+    //? if >= 1.21.11
+    //protected void saveAdditional(ValueOutput output) {
 
     saveData(ExtraData.from(output));
 
@@ -47,9 +49,9 @@ public abstract class BaseBlockEntity extends BlockEntity {
   /*public void load(@NotNull CompoundTag input) {
    *///? } else if <= 1.21.5 {
   protected void loadAdditional(CompoundTag input, HolderLookup.Provider registryLookup) {
-   //? } else if >= 1.21.11 {
-  /*protected void loadAdditional(ValueInput input) {
-    *///? }
+    //? } else if >= 1.21.11 {
+    /*protected void loadAdditional(ValueInput input) {
+     *///? }
 
     //? <= 1.20.1
     //super.load(input);
@@ -64,6 +66,11 @@ public abstract class BaseBlockEntity extends BlockEntity {
     return saveWithoutMetadata(/*? if > 1.20.1 >> ');' */provider);
   }
 
+  @Override
+  public @Nullable Packet<ClientGamePacketListener> getUpdatePacket() {
+    return ClientboundBlockEntityDataPacket.create(this);
+  }
+
   protected static class ExtraData {
     //? < 1.21.11
     private CompoundTag tag;
@@ -74,8 +81,8 @@ public abstract class BaseBlockEntity extends BlockEntity {
 
     //? < 1.21.11
     private static ExtraData from(CompoundTag tag) {
-    //? >= 1.21.11
-    //private static ExtraData from(ValueInput tag) {
+      //? >= 1.21.11
+      //private static ExtraData from(ValueInput tag) {
       ExtraData data = new ExtraData();
       data.tag = tag;
 
@@ -142,14 +149,14 @@ public abstract class BaseBlockEntity extends BlockEntity {
 
     //? < 1.21.11
     public void loadFrom(CompoundTag input) {
-    //? >= 1.21.11
-    //public void loadFrom(ValueInput input) {
+      //? >= 1.21.11
+      //public void loadFrom(ValueInput input) {
 
       //? if neoforge && >= 1.21.11 {
       /*if (input.read(this.name, this.CODEC).isEmpty()) return;
-      *///? } else {
+       *///? } else {
       if (!input.contains(this.name)) return;
-       //? }
+      //? }
 
       T value = this.getter.apply(input).apply(this.name)/*? if >= 1.21.5 >> ';'*/.get();
       this.set(value);
@@ -157,8 +164,8 @@ public abstract class BaseBlockEntity extends BlockEntity {
 
     //? < 1.21.11
     public void saveTo(CompoundTag output) {
-    //? >= 1.21.11
-    //public void saveTo(ValueOutput output) {
+      //? >= 1.21.11
+      //public void saveTo(ValueOutput output) {
       this.setter.apply(output).accept(this.name, this.get());
     }
 
@@ -175,15 +182,15 @@ public abstract class BaseBlockEntity extends BlockEntity {
   @FunctionalInterface
       //? < 1.21.11
   protected interface DatumGetterSupplier<T> extends Function<CompoundTag, DatumGetter<T>> {
-      //? >= 1.21.11
-  //protected interface DatumGetterSupplier<T> extends Function<ValueInput, DatumGetter<T>> {
+    //? >= 1.21.11
+    //protected interface DatumGetterSupplier<T> extends Function<ValueInput, DatumGetter<T>> {
   }
 
   @FunctionalInterface
       //? < 1.21.11
   protected interface DatumSetterSupplier<T> extends Function<CompoundTag, DatumSetter<T>> {
-      //? >= 1.21.11
-  //protected interface DatumSetterSupplier<T> extends Function<ValueOutput, DatumSetter<T>> {
+    //? >= 1.21.11
+    //protected interface DatumSetterSupplier<T> extends Function<ValueOutput, DatumSetter<T>> {
   }
 
   @FunctionalInterface

@@ -3,6 +3,7 @@ package fabiofdez.analogclock.platform.fabric.datagen;
 //? fabric {
 
 import fabiofdez.analogclock.ModBlocks;
+import fabiofdez.analogclock.ModItems;
 import net.fabricmc.fabric.api.datagen.v1.FabricDataOutput;
 import net.fabricmc.fabric.api.datagen.v1.provider.FabricRecipeProvider;
 //? < 1.21
@@ -51,20 +52,41 @@ public class ModRecipeProvider extends FabricRecipeProvider {
       .pattern("i")
       .pattern("a"));
 
+  RecipeDef LONG_AMETHYST_PENDULUM_RECIPE = buildRecipe((provider) -> provider
+      .shaped(RecipeCategory.MISC, ModBlocks.LONG_AMETHYST_PENDULUM.get())
+      .unlockedBy(
+          RecipeProvider.getHasName(ModBlocks.AMETHYST_PENDULUM.get()),
+          provider.has(ModBlocks.AMETHYST_PENDULUM.get())
+      )
+      .define('c', Items.COPPER_INGOT)
+      .define('i', Items.IRON_INGOT)
+      .define('p', ModBlocks.AMETHYST_PENDULUM.get())
+      .pattern("c")
+      .pattern("i")
+      .pattern("p"));
+
+  RecipeDef CLOCK_KEY_RECIPE = buildRecipe((provider) -> provider
+      .shaped(RecipeCategory.MISC, ModItems.CLOCK_KEY.get())
+      .unlockedBy(RecipeProvider.getHasName(Items.IRON_INGOT), provider.has(Items.IRON_INGOT))
+      .define('c', Items.COPPER_INGOT)
+      .define('i', Items.IRON_INGOT)
+      .pattern("c c")
+      .pattern(" i "));
+
   public ModRecipeProvider(FabricDataOutput output /*? if >= 1.21 >> ') {'*/, CompletableFuture<HolderLookup.Provider> registriesFuture) {
     super(output /*? if >= 1.21 >> ');'*/, registriesFuture);
   }
 
   @Override
-      //? if < 1.21 {
-  /*public void buildRecipes(Consumer<FinishedRecipe> exporter) {
+      //? if <= 1.21.1 {
+      /*//? < 1.21
+  //public void buildRecipes(Consumer<FinishedRecipe> exporter) {
+    //? 1.21.1
+    //public void buildRecipes(RecipeOutput exporter) {
     ANALOG_CLOCK_RECIPE.get().save(exporter);
     AMETHYST_PENDULUM_RECIPE.get().save(exporter);
-  }
-  *///? } else if <= 1.21.1 {
-  /*public void buildRecipes(RecipeOutput exporter) {
-    ANALOG_CLOCK_RECIPE.get().save(exporter);
-    AMETHYST_PENDULUM_RECIPE.get().save(exporter);
+    LONG_AMETHYST_PENDULUM_RECIPE.get().save(exporter);
+    CLOCK_KEY_RECIPE.get().save(exporter);
   }
   *///? } else if  > 1.21.1 {
   protected @NotNull RecipeProvider createRecipeProvider(HolderLookup.Provider provider, RecipeOutput recipeOutput) {
@@ -73,6 +95,8 @@ public class ModRecipeProvider extends FabricRecipeProvider {
       public void buildRecipes() {
         ANALOG_CLOCK_RECIPE.apply(this).save(output);
         AMETHYST_PENDULUM_RECIPE.apply(this).save(output);
+        LONG_AMETHYST_PENDULUM_RECIPE.apply(this).save(output);
+        CLOCK_KEY_RECIPE.apply(this).save(output);
       }
     };
   }
@@ -105,9 +129,9 @@ public class ModRecipeProvider extends FabricRecipeProvider {
   }
 
   @FunctionalInterface
-  //? <= 1.21.1
+      //? <= 1.21.1
   //private interface RecipePredicate extends Function<MyRecipeProvider, RecipeBuilder> {
-  //? > 1.21.1
+      //? > 1.21.1
   private interface RecipePredicate extends Function<RecipeProvider, RecipeBuilder> {
   }
 }

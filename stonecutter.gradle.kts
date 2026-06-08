@@ -69,7 +69,7 @@ stonecutter parameters {
 
 		string("has_interaction_result", current.parsed eq "1.21.1") {
 			replace("InteractionResult", "ItemInteractionResult")
-			replace("protected InteractionResult useItemOn", "protected ItemInteractionResult useItemOn")
+			replace("protected InteractionResult useItemOn(", "protected ItemInteractionResult useItemOn(")
 			replace("InteractionResult.PASS", "ItemInteractionResult.PASS_TO_DEFAULT_BLOCK_INTERACTION")
 		}
 
@@ -80,16 +80,17 @@ stonecutter parameters {
 			replace("public boolean isCollisionShapeFullBlock", "protected boolean isCollisionShapeFullBlock")
 			replace("public boolean canSurvive", "protected boolean canSurvive")
 			replace("public List<ItemStack> getDrops", "protected List<ItemStack> getDrops")
-			replace("public InteractionResult use", "protected InteractionResult useItemOn")
+			replace("public InteractionResult use(", "protected InteractionResult useItemOn(")
 		}
 
 		string(loader == "neoforge") {
 			replace("BlockSupplier", "DeferredBlock<Block>")
+			replace("ItemSupplier", "DeferredItem<Item>")
 		}
 
 		string(loader == "forge") {
-			replace("net.neoforged.neoforge.registries.DeferredBlock", "net.minecraftforge.registries.RegistryObject")
 			replace("BlockSupplier", "RegistryObject<Block>")
+			replace("ItemSupplier", "RegistryObject<Item>")
 		}
 	}
 }

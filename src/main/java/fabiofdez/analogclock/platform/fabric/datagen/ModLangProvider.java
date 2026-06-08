@@ -3,8 +3,10 @@ package fabiofdez.analogclock.platform.fabric.datagen;
 //? fabric {
 
 import fabiofdez.analogclock.ModBlocks;
+import fabiofdez.analogclock.ModItems;
 import fabiofdez.analogclock.ModSounds;
 import fabiofdez.analogclock.item.AnalogClockItem;
+import fabiofdez.analogclock.item.ClockKeyItem;
 import net.fabricmc.fabric.api.datagen.v1.FabricDataOutput;
 import net.fabricmc.fabric.api.datagen.v1.provider.FabricLanguageProvider;
 import net.minecraft.Util;
@@ -26,6 +28,8 @@ public class ModLangProvider extends FabricLanguageProvider {
   public void generateTranslations(/*? if > 1.21 >> 'TranslationBuilder' */HolderLookup.Provider provider, TranslationBuilder builder) {
     builder.add(ModBlocks.ANALOG_CLOCK.get().asItem(), "Analog Clock");
     builder.add(ModBlocks.AMETHYST_PENDULUM.get().asItem(), "Amethyst Pendulum");
+    builder.add(ModBlocks.LONG_AMETHYST_PENDULUM.get().asItem(), "Long Amethyst Pendulum");
+    builder.add(ModItems.CLOCK_KEY.get(), "Clock Key");
 
     builder.add(subtitleFor(ModSounds.CLOCK_WIND), "Clock winding up");
     builder.add(subtitleFor(ModSounds.CLOCK_TICK), "Pendulum ticking");
@@ -36,6 +40,9 @@ public class ModLangProvider extends FabricLanguageProvider {
 
     builder.add(AnalogClockItem.Tooltip.DYE.getTranslationKey(), "%1$s Dial");
     builder.add(AnalogClockItem.Tooltip.PLATING.getTranslationKey(), "%1$s-Plated Hands");
+    builder.add(AnalogClockItem.Tooltip.REAL_WORLD.getTranslationKey(), "Real-World Time (%1$s)");
+    builder.add(ClockKeyItem.WindingMsg.TO_IN_GAME.getTranslationKey(), "Clock set to In-Game Time");
+    builder.add(ClockKeyItem.WindingMsg.TO_REAL_WORLD.getTranslationKey(), "Clock set to Local Real-World Time (%1$s)");
   }
 
   private String subtitleFor(Supplier<SoundEvent> sound) {

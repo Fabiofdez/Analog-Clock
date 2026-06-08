@@ -1,0 +1,24 @@
+{
+	"format_version": "1.21.11",
+	"credit": "Made with Blockbench",
+	"ambientocclusion": false,
+	"textures": {
+		"particle": "analogclock:block/key_shaft",
+		"key_shaft": "analogclock:block/key_shaft"
+	},
+	"elements": [
+		{
+			"from": [0, -1, -1],
+			"to": [3, 1, 1],
+			"rotation": {"angle": 0, "axis": "y", "origin": [1.5, 0, 0]},
+			"faces": {
+				"north": {"uv": [2, 0, 5, 2], "texture": "#key_shaft"},
+				"east": {"uv": [0, 0, 2, 2], "texture": "#key_shaft"},
+				"south": {"uv": [2, 4, 5, 6], "texture": "#key_shaft"},
+				"west": {"uv": [5, 0, 7, 2], "texture": "#key_shaft"},
+				"up": {"uv": [5, 4, 2, 2], "texture": "#key_shaft"},
+				"down": {"uv": [5, 6, 2, 8], "texture": "#key_shaft"}
+			}
+		}
+	]
+}

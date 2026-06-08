@@ -6,6 +6,7 @@ import com.mojang.math.Axis;
 import fabiofdez.analogclock.AnalogClock;
 import fabiofdez.analogclock.block.DirectionalAlignedBlock;
 import fabiofdez.analogclock.block.state.properties.Alignment;
+import net.minecraft.client.renderer.block.BlockRenderDispatcher;
 import net.minecraft.client.renderer.blockentity.BlockEntityRenderer;
 import net.minecraft.client.renderer.RenderType;
 import net.minecraft.client.renderer.texture.OverlayTexture;
@@ -29,11 +30,18 @@ import org.jspecify.annotations.NonNull;
 import java.util.function.BiConsumer;
 import java.util.function.Function;
 
-//? <= 1.21.5
-public abstract class AnimatedEntityRenderer<T extends BlockEntity> implements BlockEntityRenderer<T> {
-  //? >= 1.21.11
-//public abstract class AnimatedEntityRenderer<T extends BlockEntity, S extends BlockEntityRenderState> implements BlockEntityRenderer<T, S> {
-  public static final int NO_TINT = ARGB.opaque(0xFFFFFF);
+public abstract class AnimatedEntityRenderer<T extends BlockEntity/*? if >= 1.21.11 >> '>' *//*, S extends BlockEntityRenderState*/> implements BlockEntityRenderer<T/*? if >= 1.21.11 >> '> {' *//*, S*/> {
+
+  //? <= 1.21.5 {
+  protected static final RenderTypePredicate CUTOUT = RenderType::entityCutoutNoCull;
+  protected static final RenderTypePredicate EMISSIVE = RenderType::entityTranslucentEmissive;
+  //? }
+  //? >= 1.21.11 {
+  /*protected static final RenderTypePredicate CUTOUT = RenderTypes::entityCutoutNoCull;
+  protected static final RenderTypePredicate EMISSIVE = RenderTypes::entityTranslucentEmissive;
+  *///? }
+
+  protected static final int NO_TINT = ARGB.opaque(0xFFFFFF);
 
   protected static ResourceLocation getTexture(String texture) {
     return AnalogClock.id(String.format("textures/block/%s.png", texture));
@@ -65,38 +73,43 @@ public abstract class AnimatedEntityRenderer<T extends BlockEntity> implements B
     matrices.rotateAround(Axis.YP.rotationDegrees(rotation), 0, 0, 0);
   }
 
-  protected static void drawStaticAsset(ResourceLocation texture, int tint, RenderContext ctx) {
-    renderTexture(texture, ctx, (lastPose, buf) -> drawQuad(buf, tint, lastPose, ctx.light()));
+  protected static void drawStaticAsset(RenderType renderType, int tint, RenderContext ctx) {
+    renderTexture(renderType, ctx, RenderHandler.STATIC(tint, ctx));
   }
 
-  protected static void drawAnimatedAsset(ResourceLocation texture, int tint, int frameOffset, int numFrames, RenderContext ctx) {
-    renderTexture(
-        texture,
-        ctx,
-        (lastPose, buf) -> drawQuad(buf, tint, frameOffset, numFrames, lastPose, ctx.light())
+  protected static void drawAnimatedAsset(RenderType renderType, int tint, RenderFrame frame, RenderContext ctx) {
+    renderTexture(renderType, ctx, RenderHandler.ANIMATED(tint, frame, ctx));
+  }
+
+  protected static void drawBlockModel(BlockState state, BlockRenderDispatcher blockRenderer, RenderContext ctx) {
+    //? if <= 1.21.5 {
+    blockRenderer.renderSingleBlock(
+        state,
+        ctx.matrices(),
+        ctx.vertexConsumers(),
+        ctx.light(),
+        OverlayTexture.NO_OVERLAY
     );
+    //? } else {
+    /*ctx.queue().submitBlock(ctx.matrices(), state, ctx.light(), OverlayTexture.NO_OVERLAY, 0);
+     *///? }
   }
 
-  protected static void renderTexture(ResourceLocation texture, RenderContext ctx, BiConsumer<PoseStack.Pose, VertexConsumer> renderHandler) {
+  protected static void renderTexture(RenderType renderType, RenderContext ctx, RenderHandler handler) {
 
     //? <= 1.21.5
-    RenderType renderType = RenderType.entityCutoutNoCull(texture);
+    handler.accept(ctx.matrices().last(), ctx.vertexConsumers().getBuffer(renderType));
     //? >= 1.21.11
-    //RenderType renderType = RenderTypes.entityCutoutNoCull(texture);
-
-    //? <= 1.21.5
-    renderHandler.accept(ctx.matrices().last(), ctx.vertexConsumers().getBuffer(renderType));
-    //? >= 1.21.11
-    //ctx.queue().submitCustomGeometry(ctx.matrices(), renderType, renderHandler::accept);
+    //ctx.queue().submitCustomGeometry(ctx.matrices(), renderType, handler::accept);
   }
 
   protected static void drawQuad(VertexConsumer buffer, int tint, PoseStack.Pose pose, int light) {
     drawQuad(buffer, tint, 0, 1, pose, light);
   }
 
-  protected static void drawQuad(VertexConsumer buffer, int tint, int frameOffset, int numFrames, PoseStack.Pose pose, int light) {
-    float vMin = (float) (frameOffset + 1) / numFrames;
-    float vMax = (float) (frameOffset) / numFrames;
+  protected static void drawQuad(VertexConsumer buffer, int tint, int frameOffset, int totalFrames, PoseStack.Pose pose, int light) {
+    float vMin = (float) (frameOffset + 1) / totalFrames;
+    float vMax = (float) (frameOffset) / totalFrames;
 
     addVertex(buffer, pose, -0.5f, -0.5f, tint, 0f, vMin, light);
     addVertex(buffer, pose, 0.5f, -0.5f, tint, 1f, vMin, light);
@@ -136,10 +149,25 @@ public abstract class AnimatedEntityRenderer<T extends BlockEntity> implements B
   protected abstract Object parseRenderState(T blockEntity);
 
   @Override
-  public void render(T blockEntity, float tickProgress, PoseStack matrices, MultiBufferSource vertexConsumers, int light, int overlay /*? if > 1.21.1 >> ') {' */, Vec3 cameraPos) {
+  final public void render(T blockEntity, float tickProgress, PoseStack matrices, MultiBufferSource vertexConsumers, int light, int overlay /*? if > 1.21.1 >> ') {' */, Vec3 cameraPos) {
     submitRender(parseRenderState(blockEntity), new RenderContext(matrices, vertexConsumers, light));
   }
   //? }
 
   protected abstract void submitRender(Object renderState, RenderContext ctx);
+
+  @FunctionalInterface
+  protected interface RenderHandler extends BiConsumer<PoseStack.Pose, VertexConsumer> {
+    static RenderHandler STATIC(int tint, RenderContext ctx) {
+      return (lastPose, buf) -> drawQuad(buf, tint, lastPose, ctx.light());
+    }
+
+    static RenderHandler ANIMATED(int tint, RenderFrame frame, RenderContext ctx) {
+      return (lastPose, buf) -> drawQuad(buf, tint, frame.offset(), frame.total(), lastPose, ctx.light());
+    }
+  }
+
+  @FunctionalInterface
+  protected interface RenderTypePredicate extends Function<ResourceLocation, RenderType> {
+  }
 }

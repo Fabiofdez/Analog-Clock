@@ -4,11 +4,9 @@ import fabiofdez.analogclock.ModBlockEntities;
 import fabiofdez.analogclock.ModSounds;
 import fabiofdez.analogclock.block.AnalogClockBlock;
 import fabiofdez.analogclock.color.ClockFaceStyle;
+import fabiofdez.analogclock.util.ClockTime;
 import fabiofdez.analogclock.util.FrameInterpolator;
 import net.minecraft.core.BlockPos;
-import net.minecraft.network.protocol.Packet;
-import net.minecraft.network.protocol.game.ClientGamePacketListener;
-import net.minecraft.network.protocol.game.ClientboundBlockEntityDataPacket;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.sounds.SoundSource;
 import net.minecraft.util.RandomSource;
@@ -16,8 +14,8 @@ import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
-import org.jetbrains.annotations.Nullable;
 
+import java.time.LocalTime;
 import java.util.UUID;
 
 public class AnalogClockFace extends BaseBlockEntity {
@@ -25,18 +23,23 @@ public class AnalogClockFace extends BaseBlockEntity {
   public static final long HALF_DAY_LENGTH_TICKS = DAY_LENGTH_TICKS / 2;
   public static final long HOUR_LENGTH_TICKS = DAY_LENGTH_TICKS / 24;
   public static final long SUNRISE_TICK_OFFSET = 6000; // 6AM = dayTime 0
+  public static final float SECONDS_PER_TICK = 24 * 60 * 60F / DAY_LENGTH_TICKS;
 
   public static final int CLOCK_HAND_FRAMES = 24;
   public static final int UNIT_HOUR_FRAMES = 2;
   public static final int HOUR_FRAMES_RADIX = 12;
   public static final int NUM_CLOCK_FRAMES = CLOCK_HAND_FRAMES * HOUR_FRAMES_RADIX;
 
+  public static final String IN_GAME_ZONE_ID = "Zone/In-Game";
+
   private static final int INITIAL_CLOCK_FRAME = 3 * UNIT_HOUR_FRAMES * HOUR_FRAMES_RADIX; // 3:00
   private static final int BRUSH_DURATION_TICKS = 15;
 
   private final ExtraDatum<Integer> CURRENT_FRAME = ExtraDatum.ofInt("clockFrame");
-  private final ClockHandsInterpolator HANDS_ANIMATOR;
+  private final ExtraDatum<Boolean> MANUAL_WINDING = ExtraDatum.ofBoolean("winding").setDefault(false);
+  private final ExtraDatum<String> TIME_ZONE = ExtraDatum.ofString("time_zone").setDefault(IN_GAME_ZONE_ID);
 
+  private final ClockHandsInterpolator HANDS_ANIMATOR;
   private String brushingPlayerUUID = null;
   private int brushEventTicks = 0;
 
@@ -52,22 +55,33 @@ public class AnalogClockFace extends BaseBlockEntity {
 
     handleBrushing(clockFace, level, pos, state);
 
+    boolean winding = clockFace.HANDS_ANIMATOR.inProgress();
+    boolean windingStopped = clockFace.isManuallyWinding() && !winding;
+    if (windingStopped) clockFace.MANUAL_WINDING.set(false);
+
     int nextFrame;
     if (level.dimension() == Level.OVERWORLD) {
-      boolean animationInProgress = clockFace.HANDS_ANIMATOR.inProgress();
       nextFrame = calculateNextFrame(level, clockFace);
-      if (nextFrame == clockFace.getClockFrame()) return;
+      if (nextFrame == clockFace.getClockFrame() && !windingStopped) return;
 
-      if (animationInProgress) playWindUpTick(clockFace, level, pos);
+      if (winding) playWindUpTick(clockFace, level, pos);
     } else {
       nextFrame = goToRandomFrame(level, clockFace);
-      if (nextFrame == clockFace.getClockFrame()) return;
+      if (nextFrame == clockFace.getClockFrame() && !windingStopped) return;
     }
 
     clockFace.CURRENT_FRAME.set(nextFrame);
     setChanged(level, pos, state);
 
     ((ServerLevel) level).getChunkSource().blockChanged(pos);
+  }
+
+  public boolean isManuallyWinding() {
+    return MANUAL_WINDING.get();
+  }
+
+  public String getTimeZone() {
+    return TIME_ZONE.get();
   }
 
   public int getClockFrame() {
@@ -86,17 +100,16 @@ public class AnalogClockFace extends BaseBlockEntity {
 
   private static int calculateNextFrame(Level level, AnalogClockFace clockFace) {
     ClockHandsInterpolator animator = clockFace.HANDS_ANIMATOR;
-    long dayTime = level.getDayTime();
     int nextFrame;
 
     if (animator.inProgress()) {
       if (animator.progress() >= 0.75F) {
-        animator.interp(clockFace.getClockFrame(), toClockFrame(dayTime));
+        animator.interp(clockFace.getClockFrame(), toClockFrame(level, clockFace));
       }
       return animator.step();
     }
 
-    nextFrame = toClockFrame(dayTime);
+    nextFrame = toClockFrame(level, clockFace);
 
     if (!animator.isInitialized()) {
       animator.interp(clockFace.getClockFrame(), nextFrame);
@@ -117,11 +130,45 @@ public class AnalogClockFace extends BaseBlockEntity {
     return animator.step();
   }
 
-  private static int toClockFrame(long dayTime) {
+  private static int toClockFrame(Level level, AnalogClockFace clockFace) {
+    boolean woundToInGameTime = clockFace.getTimeZone().equals(IN_GAME_ZONE_ID);
+
+    long dayTime = woundToInGameTime ? level.getDayTime() : clockFace.getRealTime();
     long clockTime = (dayTime + SUNRISE_TICK_OFFSET) % HALF_DAY_LENGTH_TICKS;
     int frameOffset = Math.toIntExact((clockTime * CLOCK_HAND_FRAMES) / HOUR_LENGTH_TICKS);
 
     return frameOffset % NUM_CLOCK_FRAMES;
+  }
+
+  private long getRealTime() {
+    String zoneId = getTimeZone();
+    LocalTime time = LocalTime.now(ClockTime.getZoneId(zoneId));
+
+    long ticksOfDay = (long) Math.floor(time.toSecondOfDay() / SECONDS_PER_TICK);
+    if (ticksOfDay < SUNRISE_TICK_OFFSET) ticksOfDay += DAY_LENGTH_TICKS;
+    ticksOfDay -= SUNRISE_TICK_OFFSET;
+
+    return ticksOfDay % DAY_LENGTH_TICKS;
+  }
+
+  public boolean setTimeZone(String zoneId) {
+    if (zoneId == null || zoneId.isEmpty()) return false;
+
+    if (!zoneId.equals(IN_GAME_ZONE_ID)) {
+      zoneId = ClockTime.getZoneId(zoneId).getId();
+    }
+
+    TIME_ZONE.set(zoneId);
+    return true;
+  }
+
+  public boolean manuallyWindTo(String zoneId, Level level) {
+    if (!setTimeZone(zoneId)) return false;
+
+    HANDS_ANIMATOR.interp(getClockFrame(), toClockFrame(level, this));
+    MANUAL_WINDING.set(true);
+
+    return true;
   }
 
   private static void playWindUpTick(AnalogClockFace clockFace, Level level, BlockPos pos) {
@@ -168,16 +215,15 @@ public class AnalogClockFace extends BaseBlockEntity {
   @Override
   protected void saveData(ExtraData output) {
     output.save(CURRENT_FRAME);
+    output.save(MANUAL_WINDING);
+    output.save(TIME_ZONE);
   }
 
   @Override
   protected void loadData(ExtraData input) {
     input.load(CURRENT_FRAME);
-  }
-
-  @Override
-  public @Nullable Packet<ClientGamePacketListener> getUpdatePacket() {
-    return ClientboundBlockEntityDataPacket.create(this);
+    input.load(MANUAL_WINDING);
+    input.load(TIME_ZONE);
   }
 
   static class ClockHandsInterpolator extends FrameInterpolator {
@@ -186,4 +232,3 @@ public class AnalogClockFace extends BaseBlockEntity {
     }
   }
 }
-

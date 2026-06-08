@@ -7,6 +7,7 @@ import fabiofdez.analogclock.AnalogClock;
 import dev.kikugie.fletching_table.annotation.fabric.Entrypoint;
 import fabiofdez.analogclock.ModBlocks;
 import fabiofdez.analogclock.client.renderer.AnalogClockFaceRenderer;
+import fabiofdez.analogclock.client.renderer.LongPendulumRenderer;
 import fabiofdez.analogclock.client.renderer.PendulumRenderer;
 import fabiofdez.analogclock.color.ClockFaceStyle;
 import net.fabricmc.api.ClientModInitializer;
@@ -28,6 +29,7 @@ public class FabricClientEntrypoint implements ClientModInitializer {
 
     BlockEntityRenderers.register(ModBlockEntities.CLOCK_FACE_ENTITY.get(), AnalogClockFaceRenderer::new);
     BlockEntityRenderers.register(ModBlockEntities.PENDULUM_ENTITY.get(), PendulumRenderer::new);
+    BlockEntityRenderers.register(ModBlockEntities.LONG_PENDULUM_ENTITY.get(), LongPendulumRenderer::new);
 
     renderCutout(ModBlocks.ANALOG_CLOCK.get());
 

@@ -7,17 +7,25 @@ import net.minecraft.world.level.block.state.BlockState;
 
 public class ClockFaceRenderState /*? if >= 1.21.11 >> '{' */ /*extends BlockEntityRenderState  */{
   private BlockState blockState;
+  private int clockFrame;
   private int hourFrame;
   private int minuteFrame;
+  private boolean winding;
 
   public void extractStateFrom(AnalogClockFace clockFace) {
     this.blockState = clockFace.getBlockState();
+    this.clockFrame = clockFace.getClockFrame();
     this.hourFrame = clockFace.getHourFrame();
     this.minuteFrame = clockFace.getMinuteFrame();
+    this.winding = clockFace.isManuallyWinding();
   }
 
   public BlockState getBlockState() {
     return blockState;
+  }
+
+  public int getClockFrame() {
+    return clockFrame;
   }
 
   public int getHourFrame() {
@@ -26,5 +34,9 @@ public class ClockFaceRenderState /*? if >= 1.21.11 >> '{' */ /*extends BlockEnt
 
   public int getMinuteFrame() {
     return minuteFrame;
+  }
+
+  public boolean isWinding() {
+    return winding;
   }
 }

@@ -1,0 +1,24 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "misc",
+  "key": {
+    "c": {
+      "item": "minecraft:copper_ingot"
+    },
+    "i": {
+      "item": "minecraft:iron_ingot"
+    },
+    "p": {
+      "item": "analogclock:amethyst_pendulum"
+    }
+  },
+  "pattern": [
+    "c",
+    "i",
+    "p"
+  ],
+  "result": {
+    "item": "analogclock:long_amethyst_pendulum"
+  },
+  "show_notification": true
+}

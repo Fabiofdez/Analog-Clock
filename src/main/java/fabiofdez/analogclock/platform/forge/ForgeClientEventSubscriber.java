@@ -7,6 +7,7 @@ import fabiofdez.analogclock.ModBlockEntities;
 import fabiofdez.analogclock.ModBlocks;
 import fabiofdez.analogclock.client.renderer.AnalogClockFaceRenderer;
 import fabiofdez.analogclock.client.renderer.PendulumRenderer;
+import fabiofdez.analogclock.client.renderer.LongPendulumRenderer;
 import fabiofdez.analogclock.color.ClockFaceStyle;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.client.event.EntityRenderersEvent;
@@ -27,6 +28,7 @@ public class ForgeClientEventSubscriber {
   public static void registerBlockEntityRenderer(EntityRenderersEvent.RegisterRenderers event) {
     event.registerBlockEntityRenderer(ModBlockEntities.CLOCK_FACE_ENTITY.get(), AnalogClockFaceRenderer::new);
     event.registerBlockEntityRenderer(ModBlockEntities.PENDULUM_ENTITY.get(), PendulumRenderer::new);
+    event.registerBlockEntityRenderer(ModBlockEntities.LONG_PENDULUM_ENTITY.get(), LongPendulumRenderer::new);
   }
 
   @SubscribeEvent
