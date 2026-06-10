@@ -23,7 +23,7 @@ import net.minecraft.client.renderer.MultiBufferSource;
 /*import net.minecraft.client.renderer.SubmitNodeCollector;
 import net.minecraft.client.renderer.state.CameraRenderState;
 import net.minecraft.client.renderer.blockentity.state.BlockEntityRenderState;
-import net.minecraft.client.renderer.rendertype.RenderTypes;
+import net.minecraft.client.renderer.RenderTypes;
 import org.jspecify.annotations.NonNull;
 *///? }
 
@@ -96,7 +96,6 @@ public abstract class AnimatedEntityRenderer<T extends BlockEntity/*? if >= 1.21
   }
 
   protected static void renderTexture(RenderType renderType, RenderContext ctx, RenderHandler handler) {
-
     //? <= 1.21.5
     handler.accept(ctx.matrices().last(), ctx.vertexConsumers().getBuffer(renderType));
     //? >= 1.21.11

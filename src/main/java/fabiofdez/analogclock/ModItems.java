@@ -49,7 +49,7 @@ public class ModItems {
     return () -> item;
   }
   //? } else {
-  /*private static DeferredItem<Item> register(String name, Function<Item.Properties, Item> itemBuilder) {
+  /*private static ItemSupplier register(String name, Function<Item.Properties, Item> itemBuilder) {
     //? neoforge
      //return ITEMS.registerItem(name, itemBuilder);
     //? forge

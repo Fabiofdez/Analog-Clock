@@ -44,7 +44,7 @@ public class FabricClientEntrypoint implements ClientModInitializer {
     //? <= 1.21.5
     BlockRenderLayerMap.INSTANCE.putBlock(block, RenderType.cutout());
     //? > 1.21.5
-    //BlockRenderLayerMap.putBlock(block, ChunkSectionLayer.CUTOUT);
+    //BlockRenderLayerMap.INSTANCE.putBlock(block, ChunkSectionLayer.CUTOUT);
   }
 }
 //?}

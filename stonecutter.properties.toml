@@ -1,0 +1,75 @@
+mod.id = "analogclock"
+mod.name = "Analog"
+mod.group = "fabiofdez"
+mod.version = "1.4.1"
+mod.channel_tag = ""
+mod.description = "A new way to tell time"
+mod.authors = ["Fabiofdez"]
+mod.contributors = []
+mod.inception_year = "2025"
+mod.license.name = "CC0-1.0"
+mod.license.url = "https://github.com/Fabiofdez/Analog-Clock?tab=CC0-1.0-1-ov-file#readme"
+mod.license.dist = "repo"
+mod.sources_url = "https://github.com/Fabiofdez/Analog-Clock"
+mod.homepage_url = "https://github.com/Fabiofdez/Analog-Clock"
+mod.issues_url = "https://github.com/Fabiofdez/Analog-Clock/issues"
+mod.discord_url = ""
+[[mod.pom.developers]]
+id = "Fabiofdez"
+name = "Fabio Fernandez"
+url = "https://github.com/Fabiofdez"
+
+[fabric]
+
+[fabric."1.20.1"]
+deps.minecraft = "1.20.1"
+deps.fabric-api = "0.90.0+1.20.1"
+deps.fabric-loader = "0.14.23"
+
+[fabric."1.21.1"]
+deps.minecraft = "1.21.1"
+deps.fabric-api = "0.116.0+1.21.1"
+deps.fabric-loader = "0.16.14"
+
+[fabric."1.21.5"]
+deps.minecraft = "1.21.5"
+deps.fabric-api = "0.128.2+1.21.5"
+deps.fabric-loader = "0.17.2"
+
+[fabric."1.21.11"]
+deps.minecraft = "1.21.11"
+deps.fabric-api = "0.141.3+1.21.11"
+deps.fabric-loader = "0.18.5"
+
+# [fabric."26.1"]
+# deps.minecraft = "26.1"
+# deps.fabric-api = "?"
+# deps.fabric-loader = "?"
+
+[forge]
+
+[forge."1.20.1"]
+deps.minecraft = "1.20.1"
+deps.forge = "47.0.0"
+
+[neoforge]
+
+[neoforge."1.21.1"]
+deps.minecraft = "1.21.1"
+deps.neoforge = "21.1.228"
+deps.parchment = "1.21.1:2024.11.17"
+
+[neoforge."1.21.5"]
+deps.minecraft = "1.21.5"
+deps.neoforge = "21.5.97"
+deps.parchment = "1.21.5:2025.06.15"
+
+[neoforge."1.21.11"]
+deps.minecraft = "1.21.11"
+deps.neoforge = "21.11.42"
+deps.parchment = "1.21.11:2025.12.20"
+
+# [neoforge."26.1"]
+# deps.minecraft = "26.1"
+# deps.neoforge = "?"
+# deps.parchment = "?"

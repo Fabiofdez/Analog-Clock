@@ -71,20 +71,20 @@ public class ModBlocks {
     return () -> registeredBlock;
   }
   //? } else {
-  /*private static DeferredBlock<Block> registerBlockOnly(ModBlockBuilder builder) {
+  /*private static BlockSupplier registerBlockOnly(ModBlockBuilder builder) {
     //? neoforge
     //return BLOCKS.registerBlock(builder.name, builder.blockClass);
     //? forge
     //return BLOCKS.register(builder.name, () -> builder.blockClass.apply(BlockBehaviour.Properties.of()));
   }
 
-  private static DeferredBlock<Block> register(ModBlockBuilder builder) {
-    DeferredBlock<Block> registeredBlock = registerBlockOnly(builder);
+  private static BlockSupplier register(ModBlockBuilder builder) {
+    BlockSupplier registeredBlock = registerBlockOnly(builder);
 
     //? > 1.21.1
-    ModItems.ITEMS.registerItem(builder.name, (props) -> builder.itemClass.apply(registeredBlock.get(), props));
+    //ModItems.ITEMS.registerItem(builder.name, (props) -> builder.itemClass.apply(registeredBlock.get(), props));
     //? <= 1.21.1
-    //ModItems.ITEMS.register(builder.name, () -> builder.itemClass.apply(registeredBlock.get(), new Item.Properties()));
+    ModItems.ITEMS.register(builder.name, () -> builder.itemClass.apply(registeredBlock.get(), new Item.Properties()));
 
     return registeredBlock;
   }

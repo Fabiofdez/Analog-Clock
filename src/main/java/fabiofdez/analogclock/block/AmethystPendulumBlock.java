@@ -84,7 +84,7 @@ public class AmethystPendulumBlock extends DirectionalAlignedBlock implements En
       //? > 1.21.1
   protected BlockState updateShape(BlockState state, LevelReader level, ScheduledTickAccess tickAccess, BlockPos pos, Direction direction, BlockPos pos2, BlockState state2, RandomSource rand) {
     //? <= 1.21.1
-    //public BlockState updateShape(BlockState state, Direction direction, BlockState state2, LevelAccessor level, BlockPos pos, BlockPos pos2) {
+    //protected BlockState updateShape(BlockState state, Direction direction, BlockState state2, LevelAccessor level, BlockPos pos, BlockPos pos2) {
     if (!state.canSurvive(level, pos)) return Blocks.AIR.defaultBlockState();
 
     //? > 1.21.1

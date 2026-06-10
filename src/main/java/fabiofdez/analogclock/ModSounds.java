@@ -50,7 +50,7 @@ public class ModSounds {
   }
   //? } else {
   /*private static Supplier<SoundEvent> register(String name) {
-    Identifier soundId = AnalogClock.id(name);
+    ResourceLocation soundId = AnalogClock.id(name);
     return SOUND_EVENTS.register(name, () -> SoundEvent.createVariableRangeEvent(soundId));
   }
 
