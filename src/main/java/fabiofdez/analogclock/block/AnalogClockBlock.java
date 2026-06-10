@@ -34,9 +34,7 @@ import net.minecraft.world.phys.shapes.CollisionContext;
 import net.minecraft.world.phys.shapes.VoxelShape;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
-//? if < 1.21 {
-/*import net.minecraft.nbt.CompoundTag;
- *///? } else {
+//? >= 1.21 {
 import com.mojang.serialization.MapCodec;
 import net.minecraft.world.level.block.HorizontalDirectionalBlock;
 //? }
@@ -174,34 +172,9 @@ public class AnalogClockBlock extends DirectionalAlignedBlock implements EntityB
     drops.forEach((stack) -> {
       if (!stack.is(this.asItem())) return;
 
-      //? if < 1.21 {
-      /*CompoundTag itemTag = stack.getOrCreateTag();
-
-      String dyeId = state.getValue(FACE_TINT).dyeId();
-      if (dyeId == null || dyeId.equals(ClockFaceStyle.FACE_NO_DYE.dyeId())) {
-        itemTag.remove(AnalogClockItem.FACE_TINT);
-      } else {
-        itemTag.putString(AnalogClockItem.FACE_TINT, dyeId);
-      }
-
-      String metalId = state.getValue(HANDS_PLATING).metalId();
-      if (metalId == null || metalId.equals(ClockFaceStyle.HANDS_NO_PLATING.metalId())) {
-        itemTag.remove(AnalogClockItem.HANDS_PLATING);
-      } else {
-        itemTag.putString(AnalogClockItem.HANDS_PLATING, metalId);
-      }
-
-      String zoneId = clockFace.getTimeZone();
-      if (zoneId == null || zoneId.equals(AnalogClockFace.IN_GAME_ZONE_ID)) {
-        itemTag.remove(AnalogClockItem.TIME_ZONE);
-      } else {
-        itemTag.putString(AnalogClockItem.TIME_ZONE, zoneId);
-      }
-      *///? } else {
-      stack.set(AnalogClockItem.FACE_TINT, state.getValue(FACE_TINT).dyeId());
-      stack.set(AnalogClockItem.HANDS_PLATING, state.getValue(HANDS_PLATING).metalId());
-      stack.set(AnalogClockItem.TIME_ZONE, clockFace.getTimeZone());
-      //? }
+      AnalogClockItem.FACE_TINT.applyTo(stack, state.getValue(FACE_TINT).dyeId());
+      AnalogClockItem.HANDS_PLATING.applyTo(stack, state.getValue(HANDS_PLATING).metalId());
+      AnalogClockItem.TIME_ZONE.applyTo(stack, clockFace.getTimeZone());
     });
 
     return drops;

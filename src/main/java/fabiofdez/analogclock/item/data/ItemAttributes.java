@@ -1,83 +1,60 @@
 package fabiofdez.analogclock.item.data;
 
-//? >= 1.21 {
-
-import fabiofdez.analogclock.ModBlocks;
-import fabiofdez.analogclock.color.ClockFaceStyle;
-import fabiofdez.analogclock.item.AnalogClockItem;
-import net.minecraft.core.component.DataComponentType;
-import net.minecraft.core.component.DataComponents;
-import net.minecraft.core.registries.BuiltInRegistries;
-import net.minecraft.resources.ResourceLocation;
-import net.minecraft.world.item.component.CustomData;
-
-import java.util.Optional;
-//? }
 import net.minecraft.nbt.CompoundTag;
+import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
+//? >= 1.21 {
+import net.minecraft.core.component.DataComponents;
+import net.minecraft.world.item.component.CustomData;
+//? }
+
+import java.util.function.BiFunction;
 import org.jetbrains.annotations.NotNull;
 
-public class ItemAttributes {
-  private final ItemStack stack;
 
-  private ItemAttributes(ItemStack stack) {
+public abstract class ItemAttributes {
+  public static final AttributeBuilder<Integer> INT = new AttributeBuilder<>(ItemAttribute::ofInt);
+  public static final AttributeBuilder<Boolean> BOOLEAN = new AttributeBuilder<>(ItemAttribute::ofBoolean);
+  public static final AttributeBuilder<String> STRING = new AttributeBuilder<>(ItemAttribute::ofString);
+
+  protected ItemStack stack;
+
+  protected abstract Item targetItem();
+
+  protected abstract void onRemap(CompoundTag customData);
+
+  protected ItemAttributes parse(@NotNull ItemStack stack) {
     this.stack = stack;
-  }
 
-  public static ItemAttributes parseFrom(@NotNull ItemStack stack) {
-    //? if >= 1.21 {
-    CustomData extra = stack.get(DataComponents.CUSTOM_DATA);
+    //? >= 1.21 {
+    CustomData customData = stack.get(DataComponents.CUSTOM_DATA);
 
-    if (stack.is(ModBlocks.ANALOG_CLOCK.get().asItem()) && extra != null) {
-      CompoundTag oldTag = extra.copyTag();
-
-      stringInTag(oldTag, componentPath(AnalogClockItem.FACE_TINT)).ifPresent((dyeId) -> {
-        if (dyeId.equals(ClockFaceStyle.FACE_NO_DYE.dyeId())) return;
-        stack.set(AnalogClockItem.FACE_TINT, dyeId);
-      });
-
-      stringInTag(oldTag, componentPath(AnalogClockItem.HANDS_PLATING)).ifPresent((metalId) -> {
-        if (metalId.equals(ClockFaceStyle.HANDS_NO_PLATING.metalId())) return;
-        stack.set(AnalogClockItem.HANDS_PLATING, metalId);
-      });
-
-      stack.remove(DataComponents.CUSTOM_DATA);
+    if (stack.is(targetItem()) && customData != null) {
+      onRemap(customData.copyTag());
     }
     //? }
 
-    return new ItemAttributes(stack);
+    return this;
   }
 
-  //? < 1.21
-  //public String getStringOr(String tagName, String defaultValue) {
-  //? >= 1.21
-  public String getStringOr(DataComponentType<String> component, String defaultValue) {
+  public <T> T get(ItemAttribute<T> attribute) {
     //? if < 1.21 {
     /*CompoundTag itemTag = stack.getOrCreateTag();
-    String value = itemTag.getString(tagName);
-    if (value.isEmpty()) return defaultValue;
-    return value;
+    return attribute.checkIn(itemTag).orElse(attribute.defaultValue());
     *///? } else {
-    return stack.getOrDefault(component, defaultValue);
+    return stack.getOrDefault(attribute.component(), attribute.defaultValue());
     //? }
   }
 
-  //? >= 1.21 {
-  private static <T> String componentPath(DataComponentType<T> component) {
-    ResourceLocation id = BuiltInRegistries.DATA_COMPONENT_TYPE.getKey(component);
-    assert id != null;
+  public static class AttributeBuilder<T> {
+    private final BiFunction<String, T, ItemAttribute<T>> builder;
 
-    return id.getPath();
-  }
+    public AttributeBuilder(BiFunction<String, T, ItemAttribute<T>> builder) {
+      this.builder = builder;
+    }
 
-  private static Optional<String> stringInTag(CompoundTag tag, String key) {
-    //? if 1.21.1 {
-    /*String value = tag.getString(key);
-    if (value == null || value.isEmpty()) return Optional.empty();
-    return Optional.of(value);
-    *///? } else {
-    return tag.getString(key);
-    //? }
+    public ItemAttribute<T> create(String name, T defaultValue) {
+      return this.builder.apply(name, defaultValue);
+    }
   }
-  //? }
 }

@@ -3,6 +3,9 @@ package fabiofdez.analogclock.block.entity;
 import fabiofdez.analogclock.ModBlockEntities;
 import fabiofdez.analogclock.ModSounds;
 import fabiofdez.analogclock.block.AnalogClockBlock;
+import fabiofdez.analogclock.block.entity.properties.BlockEntityData;
+import fabiofdez.analogclock.block.entity.properties.BlockEntityProp;
+import fabiofdez.analogclock.block.entity.properties.BlockEntityProps;
 import fabiofdez.analogclock.color.ClockFaceStyle;
 import fabiofdez.analogclock.util.ClockTime;
 import fabiofdez.analogclock.util.FrameInterpolator;
@@ -35,9 +38,9 @@ public class AnalogClockFace extends BaseBlockEntity {
   private static final int INITIAL_CLOCK_FRAME = 3 * UNIT_HOUR_FRAMES * HOUR_FRAMES_RADIX; // 3:00
   private static final int BRUSH_DURATION_TICKS = 15;
 
-  private final ExtraDatum<Integer> CURRENT_FRAME = ExtraDatum.ofInt("clockFrame");
-  private final ExtraDatum<Boolean> MANUAL_WINDING = ExtraDatum.ofBoolean("winding").setDefault(false);
-  private final ExtraDatum<String> TIME_ZONE = ExtraDatum.ofString("time_zone").setDefault(IN_GAME_ZONE_ID);
+  private final BlockEntityProp<Integer> CURRENT_FRAME = BlockEntityProps.INT.create("clockFrame");
+  private final BlockEntityProp<Boolean> MANUAL_WINDING = BlockEntityProps.BOOLEAN.create("winding", false);
+  private final BlockEntityProp<String> TIME_ZONE = BlockEntityProps.STRING.create("time_zone", IN_GAME_ZONE_ID);
 
   private final ClockHandsInterpolator HANDS_ANIMATOR;
   private String brushingPlayerUUID = null;
@@ -213,14 +216,14 @@ public class AnalogClockFace extends BaseBlockEntity {
   }
 
   @Override
-  protected void saveData(ExtraData output) {
+  protected void saveData(BlockEntityData output) {
     output.save(CURRENT_FRAME);
     output.save(MANUAL_WINDING);
     output.save(TIME_ZONE);
   }
 
   @Override
-  protected void loadData(ExtraData input) {
+  protected void loadData(BlockEntityData input) {
     input.load(CURRENT_FRAME);
     input.load(MANUAL_WINDING);
     input.load(TIME_ZONE);

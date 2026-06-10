@@ -5,10 +5,12 @@ import fabiofdez.analogclock.ModBlocks;
 import fabiofdez.analogclock.block.AnalogClockBlock;
 import fabiofdez.analogclock.block.entity.AnalogClockFace;
 import fabiofdez.analogclock.color.ClockFaceStyle;
+import fabiofdez.analogclock.item.data.ItemAttribute;
 import fabiofdez.analogclock.item.data.ItemAttributes;
 import fabiofdez.analogclock.util.ClockTime;
 import net.minecraft.ChatFormatting;
 import net.minecraft.core.BlockPos;
+import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.BlockItem;
@@ -20,14 +22,6 @@ import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
-import org.jetbrains.annotations.Nullable;
-//? < 1.21 {
-//? } else {
-import com.mojang.serialization.Codec;
-import net.minecraft.core.Registry;
-import net.minecraft.core.component.DataComponentType;
-import net.minecraft.core.registries.BuiltInRegistries;
-//? }
 //? > 1.21.1
 import net.minecraft.world.item.component.TooltipDisplay;
 
@@ -36,29 +30,15 @@ import net.minecraft.world.item.component.TooltipDisplay;
 import java.util.function.Consumer;
 import java.util.function.Function;
 
+import org.jetbrains.annotations.Nullable;
+
 public class AnalogClockItem extends BlockItem {
-  //? if < 1.21 {
-  /*public static final String FACE_TINT = "clock_face_color";
-  public static final String HANDS_PLATING = "clock_hands_plating";
-  public static final String TIME_ZONE = "time_zone";
-  *///? } else {
-  public static final DataComponentType<String> FACE_TINT = registerComponent("clock_face_color", Codec.STRING);
-  public static final DataComponentType<String> HANDS_PLATING = registerComponent("clock_hands_plating", Codec.STRING);
-  public static final DataComponentType<String> TIME_ZONE = registerComponent("time_zone", Codec.STRING);
-  //? }
+  public static final ItemAttribute<String> FACE_TINT;
+  public static final ItemAttribute<String> HANDS_PLATING;
+  public static final ItemAttribute<String> TIME_ZONE;
 
   public AnalogClockItem(Block block, Properties properties) {
-    //? if < 1.21 {
-    /*super(block, properties);
-     *///? } else {
-    super(
-        block,
-        properties
-            .component(FACE_TINT, ClockFaceStyle.FACE_NO_DYE.dyeId())
-            .component(HANDS_PLATING, ClockFaceStyle.HANDS_NO_PLATING.metalId())
-            .component(TIME_ZONE, AnalogClockFace.IN_GAME_ZONE_ID)
-    );
-    //? }
+    super(block, Attributes.addTo(properties));
   }
 
   //? <= 1.21.1 {
@@ -77,9 +57,9 @@ public class AnalogClockItem extends BlockItem {
     ItemStack stack = ctx.getItemInHand();
     if (!stack.is(this)) return initialState;
 
-    ItemAttributes itemData = ItemAttributes.parseFrom(stack);
-    String dyeId = itemData.getStringOr(FACE_TINT, ClockFaceStyle.FACE_NO_DYE.dyeId());
-    String metalId = itemData.getStringOr(HANDS_PLATING, ClockFaceStyle.HANDS_NO_PLATING.metalId());
+    ItemAttributes attributes = Attributes.parseFrom(stack);
+    String dyeId = attributes.get(FACE_TINT);
+    String metalId = attributes.get(HANDS_PLATING);
 
     return initialState
         .setValue(AnalogClockBlock.FACE_TINT, ClockFaceStyle.DyeColor.getColorOf(dyeId))
@@ -93,8 +73,7 @@ public class AnalogClockItem extends BlockItem {
     BlockEntity blockEntity = level.getBlockEntity(pos);
     if (!(blockEntity instanceof AnalogClockFace clockFace)) return false;
 
-    ItemAttributes itemData = ItemAttributes.parseFrom(stack);
-    String zoneId = itemData.getStringOr(TIME_ZONE, AnalogClockFace.IN_GAME_ZONE_ID);
+    String zoneId = Attributes.parseFrom(stack).get(TIME_ZONE);
     if (!zoneId.equals(AnalogClockFace.IN_GAME_ZONE_ID)) clockFace.setTimeZone(zoneId);
 
     return true;
@@ -120,30 +99,61 @@ public class AnalogClockItem extends BlockItem {
   //? }
 
   private void addClockInfo(ItemStack stack, Consumer<Component> components) {
-    ItemAttributes itemData = ItemAttributes.parseFrom(stack);
+    ItemAttributes attributes = Attributes.parseFrom(stack);
+    String dyeId = attributes.get(FACE_TINT);
+    String metalId = attributes.get(HANDS_PLATING);
+    String zoneId = attributes.get(TIME_ZONE);
 
-    String zoneId = itemData.getStringOr(TIME_ZONE, AnalogClockFace.IN_GAME_ZONE_ID);
-    if (!zoneId.equals(AnalogClockFace.IN_GAME_ZONE_ID)) {
-      String zoneOffset = ClockTime.getOffset(zoneId);
+    if (!zoneId.equals(TIME_ZONE.defaultValue())) {
+      String zone = ClockTime.getOffset(zoneId);
       components.accept(Component
-          .translatable(Tooltip.REAL_WORLD.getTranslationKey(), zoneOffset)
+          .translatable(Tooltip.REAL_WORLD.getTranslationKey(), zone)
           .withStyle(ChatFormatting.BLUE));
     }
 
-    String dyeId = itemData.getStringOr(FACE_TINT, ClockFaceStyle.FACE_NO_DYE.dyeId());
-    ClockFaceStyle.DyeColor color = ClockFaceStyle.DyeColor.getColorOf(dyeId);
-    if (color != ClockFaceStyle.FACE_NO_DYE) {
+    if (!dyeId.equals(FACE_TINT.defaultValue())) {
+      String faceDye = ClockFaceStyle.DyeColor.getColorOf(dyeId).readable();
       components.accept(Component
-          .translatable(Tooltip.DYE.getTranslationKey(), color.readable())
+          .translatable(Tooltip.DYE.getTranslationKey(), faceDye)
           .withStyle(ChatFormatting.GRAY));
     }
 
-    String metalId = itemData.getStringOr(HANDS_PLATING, ClockFaceStyle.HANDS_NO_PLATING.metalId());
-    ClockFaceStyle.Plating metal = ClockFaceStyle.Plating.getMetalOf(metalId);
-    if (metal != ClockFaceStyle.HANDS_NO_PLATING) {
+    if (!metalId.equals(HANDS_PLATING.defaultValue())) {
+      String metalPlating = ClockFaceStyle.Plating.getMetalOf(metalId).readable();
       components.accept(Component
-          .translatable(Tooltip.PLATING.getTranslationKey(), metal.readable())
+          .translatable(Tooltip.PLATING.getTranslationKey(), metalPlating)
           .withStyle(ChatFormatting.GRAY));
+    }
+  }
+
+  static class Attributes extends ItemAttributes {
+
+    static ItemAttributes parseFrom(ItemStack stack) {
+      return new Attributes().parse(stack);
+    }
+
+    @Override
+    protected Item targetItem() {
+      return ModBlocks.ANALOG_CLOCK.get().asItem();
+    }
+
+    @Override
+    protected void onRemap(CompoundTag customData) {
+      //? >= 1.21 {
+      FACE_TINT.checkIn(customData).ifPresent((dyeId) -> stack.set(FACE_TINT.component(), dyeId));
+      HANDS_PLATING.checkIn(customData).ifPresent((metalId) -> stack.set(HANDS_PLATING.component(), metalId));
+      TIME_ZONE.checkIn(customData).ifPresent((zoneId) -> stack.set(TIME_ZONE.component(), zoneId));
+      //? }
+    }
+
+    protected static Properties addTo(Properties properties) {
+      //? >= 1.21 {
+      FACE_TINT.addTo(properties);
+      HANDS_PLATING.addTo(properties);
+      TIME_ZONE.addTo(properties);
+      //? }
+
+      return properties;
     }
   }
 
@@ -163,10 +173,9 @@ public class AnalogClockItem extends BlockItem {
     }
   }
 
-  //? >= 1.21 {
-  private static <T> DataComponentType<T> registerComponent(String name, Codec<T> codec) {
-    DataComponentType<T> component = DataComponentType.<T>builder().persistent(codec).build();
-    return Registry.register(BuiltInRegistries.DATA_COMPONENT_TYPE, AnalogClock.id(name), component);
+  static {
+    FACE_TINT = ItemAttributes.STRING.create("clock_face_color", ClockFaceStyle.FACE_NO_DYE.dyeId());
+    HANDS_PLATING = ItemAttributes.STRING.create("clock_hands_plating", ClockFaceStyle.HANDS_NO_PLATING.metalId());
+    TIME_ZONE = ItemAttributes.STRING.create("time_zone", AnalogClockFace.IN_GAME_ZONE_ID);
   }
-  //? }
 }

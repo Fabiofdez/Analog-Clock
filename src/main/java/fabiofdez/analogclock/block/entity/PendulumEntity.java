@@ -3,6 +3,9 @@ package fabiofdez.analogclock.block.entity;
 import fabiofdez.analogclock.ModBlockEntities;
 import fabiofdez.analogclock.ModSounds;
 import fabiofdez.analogclock.block.AmethystPendulumBlock;
+import fabiofdez.analogclock.block.entity.properties.BlockEntityData;
+import fabiofdez.analogclock.block.entity.properties.BlockEntityProp;
+import fabiofdez.analogclock.block.entity.properties.BlockEntityProps;
 import fabiofdez.analogclock.color.GemstoneColor;
 import fabiofdez.analogclock.util.FrameInterpolator;
 import fabiofdez.analogclock.util.GravityInterpolator;
@@ -41,13 +44,13 @@ public class PendulumEntity extends BaseBlockEntity {
   private static final float D = 1.5F;
   private static final float E = 1.68F;
 
-  private final ExtraDatum<Integer> SWING_FRAME_OFFSET = ExtraDatum.ofInt("swingOffset").setDefault(-1);
-  private final ExtraDatum<Integer> CURRENT_SWING_FRAME = ExtraDatum.ofInt("swingFrame").setDefault(0);
-  private final ExtraDatum<Boolean> SWINGING = ExtraDatum.ofBoolean("swinging").setDefault(true);
+  private final BlockEntityProp<Integer> SWING_FRAME_OFFSET = BlockEntityProps.INT.create("swingOffset", -1);
+  private final BlockEntityProp<Integer> CURRENT_SWING_FRAME = BlockEntityProps.INT.create("swingFrame", 0);
+  private final BlockEntityProp<Boolean> SWINGING = BlockEntityProps.BOOLEAN.create("swinging", true);
 
-  private final ExtraDatum<Integer> CURRENT_COLOR_PHASE = ExtraDatum.ofInt("colorPhase").setDefault(0);
-  private final ExtraDatum<Boolean> IN_OVERWORLD = ExtraDatum.ofBoolean("inOverworld").setDefault(true);
-  private final ExtraDatum<Integer> ALTERNATE_TINT = ExtraDatum.ofInt("alternateTint");
+  private final BlockEntityProp<Integer> CURRENT_COLOR_PHASE = BlockEntityProps.INT.create("colorPhase", 0);
+  private final BlockEntityProp<Boolean> IN_OVERWORLD = BlockEntityProps.BOOLEAN.create("inOverworld", true);
+  private final BlockEntityProp<Integer> ALTERNATE_TINT = BlockEntityProps.INT.create("alternateTint");
 
   private final GravityInterpolator SWING_ANIMATOR;
   private final PhaseTintInterpolator COLOR_PHASE_ANIMATOR;
@@ -284,7 +287,7 @@ public class PendulumEntity extends BaseBlockEntity {
   }
 
   @Override
-  protected void saveData(ExtraData output) {
+  protected void saveData(BlockEntityData output) {
     output.save(SWINGING);
     output.save(IN_OVERWORLD);
     output.save(ALTERNATE_TINT);
@@ -294,7 +297,7 @@ public class PendulumEntity extends BaseBlockEntity {
   }
 
   @Override
-  protected void loadData(ExtraData input) {
+  protected void loadData(BlockEntityData input) {
     input.load(SWINGING);
     input.load(IN_OVERWORLD);
     input.load(ALTERNATE_TINT);
