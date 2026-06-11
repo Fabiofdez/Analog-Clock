@@ -8,6 +8,7 @@ import net.minecraft.util.ARGB;
 import net.minecraft.util.StringRepresentable;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.Items;
+//? < 26.1
 import net.minecraft.world.level.BlockAndTintGetter;
 import net.minecraft.world.level.block.state.BlockState;
 import org.jetbrains.annotations.NotNull;
@@ -22,7 +23,7 @@ public class ClockFaceStyle {
   public static final DyeColor FACE_NO_DYE = DyeColor.NO_COLOR;
   public static final Plating HANDS_NO_PLATING = Plating.NO_PLATING;
 
-  public static int getColor(BlockState state, @Nullable BlockAndTintGetter ignoredGetter, @Nullable BlockPos ignoredPos, int tintIdx) {
+  public static int getColor(BlockState state, /*? if < 26.1 >> '@Nullable BlockPos' */@Nullable BlockAndTintGetter ignoredGetter, @Nullable BlockPos ignoredPos, int tintIdx) {
     if (state.is(ModBlocks.ANALOG_CLOCK.get()) && tintIdx != 1) return FACE_NO_DYE.getColor();
     if (state.is(ModBlocks.INTERNAL_CLOCK_FACE.get()) && tintIdx != 0) return FACE_NO_DYE.getColor();
 

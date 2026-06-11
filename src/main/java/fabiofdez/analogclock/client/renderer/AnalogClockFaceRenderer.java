@@ -8,17 +8,15 @@ import fabiofdez.analogclock.block.PlacedClockKey;
 import fabiofdez.analogclock.client.renderer.state.ClockFaceRenderState;
 import fabiofdez.analogclock.color.ClockFaceStyle;
 import fabiofdez.analogclock.block.entity.AnalogClockFace;
-import net.minecraft.client.renderer.block.BlockRenderDispatcher;
 import net.minecraft.client.renderer.blockentity.BlockEntityRendererProvider;
-//? >= 1.21.11 {
-/*import net.minecraft.client.renderer.feature.ModelFeatureRenderer;
-import net.minecraft.world.phys.Vec3;
-import org.jspecify.annotations.NonNull;
-*///? }
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.util.ARGB;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.Vec3;
+//? >= 1.21.11 {
+/*import net.minecraft.client.renderer.feature.ModelFeatureRenderer;
+import org.jspecify.annotations.NonNull;
+*///? }
 
 public class AnalogClockFaceRenderer extends AnimatedEntityRenderer<AnalogClockFace/*? if >= 1.21.11 >> '>' *//*, ClockFaceRenderState*/> {
   private static final ResourceLocation KEY_HANDLE = getTexture("key_handle");
@@ -42,13 +40,10 @@ public class AnalogClockFaceRenderer extends AnimatedEntityRenderer<AnalogClockF
   private static final int FRAMES_PER_KEY_TURN = AnalogClockFace.CLOCK_HAND_FRAMES * HOURS_PER_KEY_TURN;
   private static final float KEY_DEGREES_PER_FRAME = 360F / FRAMES_PER_KEY_TURN;
 
-  private final BlockRenderDispatcher blockRenderer;
+  private final BlockModelDispatcher blockDispatcher;
 
   public AnalogClockFaceRenderer(BlockEntityRendererProvider.Context ctx) {
-    //? <= 1.21.5
-    this.blockRenderer = ctx.getBlockRenderDispatcher();
-    //? >= 1.21.11
-    //this.blockRenderer = ctx.blockRenderDispatcher();
+    this.blockDispatcher = BlockModelDispatcher.from(ctx);
   }
 
   //? >= 1.21.11 {
@@ -61,6 +56,8 @@ public class AnalogClockFaceRenderer extends AnimatedEntityRenderer<AnalogClockF
   public void extractRenderState(AnalogClockFace clockFace, ClockFaceRenderState renderState, float tickProgress, @NonNull Vec3 cameraPos, ModelFeatureRenderer.CrumblingOverlay crumblingOverlay) {
     super.extractRenderState(clockFace, renderState, tickProgress, cameraPos, crumblingOverlay);
     renderState.extractStateFrom(clockFace);
+    //? >= 26.1
+    //blockDispatcher.updateBlock(renderState.getKeyShaftState(), PLACED_KEY);
   }
   *///? }
 
@@ -98,7 +95,11 @@ public class AnalogClockFaceRenderer extends AnimatedEntityRenderer<AnalogClockF
     ResourceLocation hourHand = hasPlating ? HOUR_PLATED_TEXTURE : HOUR_TEXTURE;
 
     orientWithAlignment(matrices, clockFace.getBlockState(), (isFront) -> 0.5 + (isFront ? 0 : -CLOCK_MODEL_THICKNESS));
-    if (clockFace.isWinding()) drawClockKey(this.blockRenderer, clockFace.getClockFrame(), ctx);
+    if (clockFace.isWinding()) {
+      //? >= 26.1
+      //blockDispatcher.useBlock(clockFace.getKeyShaftState());
+      drawClockKey(blockDispatcher, clockFace.getClockFrame(), ctx);
+    }
 
     drawStaticAsset(CUTOUT.apply(dialMarks), markingsTint, ctx);
     drawAnimatedAsset(CUTOUT.apply(minuteHand), metalColor, minuteFrame, ctx.zOffset(CLOCK_HAND_OFFSET));
@@ -107,10 +108,10 @@ public class AnalogClockFaceRenderer extends AnimatedEntityRenderer<AnalogClockF
     matrices.popPose();
   }
 
-  private static void drawClockKey(BlockRenderDispatcher blockRenderer, int clockFrame, RenderContext ctx) {
+  private static void drawClockKey(BlockModelDispatcher blockDispatcher, int clockFrame, RenderContext ctx) {
     float keyRotation = keyAngleDegrees(clockFrame);
 
-    drawBlockModel(PLACED_KEY, blockRenderer, ctx.offset(KEY_OFFSET));
+    drawBlockModel(blockDispatcher, PLACED_KEY, ctx.offset(KEY_OFFSET));
     drawStaticAsset(CUTOUT.apply(KEY_HANDLE), NO_TINT, ctx.rotateDegrees(Axis.XP, keyRotation));
 
     ctx.rotateDegrees(Axis.XP, -keyRotation).offset(KEY_OFFSET.reverse());

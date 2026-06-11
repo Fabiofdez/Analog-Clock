@@ -107,7 +107,10 @@ public class ClockKeyItem extends Item {
       windingMsg = Component.translatable(WindingMsg.TO_REAL_WORLD.getTranslationKey(), zoneOffset);
     }
 
+    //? < 26.1
     player.displayClientMessage(windingMsg.withStyle(ChatFormatting.GOLD), true);
+    //? >= 26.1
+    //player.sendOverlayMessage(windingMsg.withStyle(ChatFormatting.GOLD));
   }
 
   public record WindActionPayload(String zoneId, BlockPos blockPos) /*? if >= 1.21 >> '{' */ implements CustomPacketPayload {

@@ -1,0 +1,80 @@
+{
+  "chime_resonate": {
+    "sounds": [
+      {
+        "type": "event",
+        "attenuation_distance": 48,
+        "name": "minecraft:block.note_block.chime",
+        "pitch": 0.5
+      }
+    ],
+    "subtitle": "subtitles.analogclock.chime_resonate"
+  },
+  "clock_chime": {
+    "sounds": [
+      {
+        "type": "event",
+        "attenuation_distance": 48,
+        "name": "minecraft:block.bell.use",
+        "volume": 0.04
+      }
+    ],
+    "subtitle": "subtitles.analogclock.clock_chime"
+  },
+  "clock_plating_add": {
+    "sounds": [
+      {
+        "type": "event",
+        "name": "minecraft:block.copper.step",
+        "pitch": 1.5,
+        "volume": 0.6
+      }
+    ],
+    "subtitle": "subtitles.analogclock.clock_plating_add"
+  },
+  "clock_plating_scrape": {
+    "sounds": [
+      {
+        "type": "event",
+        "name": "minecraft:item.axe.scrape",
+        "pitch": 1.5,
+        "volume": 0.6
+      }
+    ],
+    "subtitle": "subtitles.analogclock.clock_plating_scrape"
+  },
+  "clock_tick": {
+    "sounds": [
+      {
+        "attenuation_distance": 8,
+        "name": "analogclock:pendulum_tick1"
+      },
+      {
+        "attenuation_distance": 8,
+        "name": "analogclock:pendulum_tick2"
+      },
+      {
+        "attenuation_distance": 8,
+        "name": "analogclock:pendulum_tick3"
+      },
+      {
+        "attenuation_distance": 8,
+        "name": "analogclock:pendulum_tick4"
+      },
+      {
+        "attenuation_distance": 8,
+        "name": "analogclock:pendulum_tick5"
+      }
+    ],
+    "subtitle": "subtitles.analogclock.clock_tick"
+  },
+  "clock_wind": {
+    "sounds": [
+      {
+        "type": "event",
+        "name": "minecraft:item.spyglass.use"
+      }
+    ],
+    "subtitle": "subtitles.analogclock.clock_wind"
+  }
+}

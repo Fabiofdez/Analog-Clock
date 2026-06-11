@@ -1,0 +1,18 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "misc",
+  "key": {
+    "c": "minecraft:copper_ingot",
+    "i": "minecraft:iron_ingot",
+    "q": "minecraft:quartz",
+    "r": "minecraft:redstone"
+  },
+  "pattern": [
+    "cic",
+    "iri",
+    "cqc"
+  ],
+  "result": {
+    "id": "analogclock:analog_clock"
+  }
+}

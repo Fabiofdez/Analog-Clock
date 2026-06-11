@@ -78,6 +78,22 @@ stonecutter parameters {
 			replace("ResourceLocation", "Identifier")
 		}
 
+		string(current.parsed >= "26.1") {
+			replace("net.minecraft.client.renderer.state.CameraRenderState", "net.minecraft.client.renderer.state.level.CameraRenderState")
+			replace("net.fabricmc.fabric.api.client.rendering.v1.ColorProviderRegistry", "net.fabricmc.fabric.api.client.rendering.v1.BlockColorRegistry")
+			replace("net.fabricmc.fabric.api.itemgroup.v1.ItemGroupEvents", "net.fabricmc.fabric.api.creativetab.v1.CreativeModeTabEvents")
+			replace("ColorProviderRegistry.BLOCK.register", "BlockColorRegistry.register")
+			replace("ItemGroupEvents.ModifyEntries", "CreativeModeTabEvents.ModifyOutput")
+			replace("ItemGroupEvents.modifyEntriesEvent", "CreativeModeTabEvents.modifyOutputEvent")
+			replace("SoundTypeBuilder.EntryBuilder", "SoundTypeBuilder.RegistrationBuilder")
+			replace("SoundTypeBuilder.of().category", "SoundTypeBuilder.of().source")
+			replace("FabricBlockLootTableProvider", "FabricBlockLootSubProvider")
+			replace("FabricDataOutput", "FabricPackOutput")
+			replace("entityCutoutNoCull", "entityCutout")
+			replace("level.getDayTime()", "level.getDefaultClockTime()")
+			replace("PayloadTypeRegistry.playC2S", "PayloadTypeRegistry.serverboundPlay")
+		}
+
 		string(loader == "neoforge") {
 			replace("BlockSupplier", "DeferredBlock<Block>")
 			replace("ItemSupplier", "DeferredItem<Item>")

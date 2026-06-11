@@ -6,7 +6,6 @@ import com.mojang.math.Axis;
 import fabiofdez.analogclock.AnalogClock;
 import fabiofdez.analogclock.block.DirectionalAlignedBlock;
 import fabiofdez.analogclock.block.state.properties.Alignment;
-import net.minecraft.client.renderer.block.BlockRenderDispatcher;
 import net.minecraft.client.renderer.blockentity.BlockEntityRenderer;
 import net.minecraft.client.renderer.RenderType;
 import net.minecraft.client.renderer.texture.OverlayTexture;
@@ -17,18 +16,18 @@ import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.Vec3;
 
+import java.util.function.BiConsumer;
+import java.util.function.Function;
+
 //? if <= 1.21.5 {
 import net.minecraft.client.renderer.MultiBufferSource;
-//? } else if >= 1.21.11 {
+    //? } else if >= 1.21.11 {
 /*import net.minecraft.client.renderer.SubmitNodeCollector;
 import net.minecraft.client.renderer.state.CameraRenderState;
 import net.minecraft.client.renderer.blockentity.state.BlockEntityRenderState;
 import net.minecraft.client.renderer.RenderTypes;
 import org.jspecify.annotations.NonNull;
 *///? }
-
-import java.util.function.BiConsumer;
-import java.util.function.Function;
 
 public abstract class AnimatedEntityRenderer<T extends BlockEntity/*? if >= 1.21.11 >> '>' *//*, S extends BlockEntityRenderState*/> implements BlockEntityRenderer<T/*? if >= 1.21.11 >> '> {' *//*, S*/> {
 
@@ -81,17 +80,15 @@ public abstract class AnimatedEntityRenderer<T extends BlockEntity/*? if >= 1.21
     renderTexture(renderType, ctx, RenderHandler.ANIMATED(tint, frame, ctx));
   }
 
-  protected static void drawBlockModel(BlockState state, BlockRenderDispatcher blockRenderer, RenderContext ctx) {
+  protected static void drawBlockModel(BlockModelDispatcher blockDispatcher, BlockState state, RenderContext ctx) {
     //? if <= 1.21.5 {
-    blockRenderer.renderSingleBlock(
-        state,
-        ctx.matrices(),
-        ctx.vertexConsumers(),
-        ctx.light(),
-        OverlayTexture.NO_OVERLAY
-    );
-    //? } else {
+    blockDispatcher
+        .blockRenderer()
+        .renderSingleBlock(state, ctx.matrices(), ctx.vertexConsumers(), ctx.light(), OverlayTexture.NO_OVERLAY);
+    //? } else if <= 1.21.11 {
     /*ctx.queue().submitBlock(ctx.matrices(), state, ctx.light(), OverlayTexture.NO_OVERLAY, 0);
+     *///? } else {
+    /*blockDispatcher.renderState().submit(ctx.matrices(), ctx.queue(), ctx.light(), OverlayTexture.NO_OVERLAY, 0);
      *///? }
   }
 
