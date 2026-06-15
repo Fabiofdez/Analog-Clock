@@ -76,11 +76,11 @@ fun Project.configureModPublishing(ctx: Context) {
 		file.set(jarTask.flatMap(Jar::getArchiveFile))
 		additionalFiles.from(srcJarTask.flatMap(Jar::getArchiveFile))
 		type = releaseType
-		version = ctx.fullVersion
+		version = "${ctx.baseVersion}+${ctx.currentMcVersion}"
 		changelog.set(rootProject.file("CHANGELOG.md").readText())
 		modLoaders.add(ctx.loader.id)
 
-		displayName = "${ctx.modName} ${ctx.basicVersion}"
+		displayName = "${ctx.modName} ${ctx.baseVersion}"
 
 		val deps = ctx.extension.dependencies
 

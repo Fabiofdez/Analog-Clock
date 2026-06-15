@@ -1,5 +1,3 @@
-## [1.5.0-alpha.1] - 2026-06-15
-
 ### Additions
 
 - Port to 26.1.2 for Fabric
