@@ -82,9 +82,9 @@ public class ModBlocks {
     BlockSupplier registeredBlock = registerBlockOnly(builder);
 
     //? > 1.21.1
-    //ModItems.ITEMS.registerItem(builder.name, (props) -> builder.itemClass.apply(registeredBlock.get(), props));
+    ModItems.ITEMS.registerItem(builder.name, (props) -> builder.itemClass.apply(registeredBlock.get(), props));
     //? <= 1.21.1
-    ModItems.ITEMS.register(builder.name, () -> builder.itemClass.apply(registeredBlock.get(), new Item.Properties()));
+    //ModItems.ITEMS.register(builder.name, () -> builder.itemClass.apply(registeredBlock.get(), new Item.Properties()));
 
     return registeredBlock;
   }

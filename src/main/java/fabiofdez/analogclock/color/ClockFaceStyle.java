@@ -2,28 +2,41 @@ package fabiofdez.analogclock.color;
 
 import fabiofdez.analogclock.ModBlocks;
 import fabiofdez.analogclock.block.AnalogClockBlock;
-import net.minecraft.core.BlockPos;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.util.ARGB;
 import net.minecraft.util.StringRepresentable;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.Items;
-//? < 26.1
-import net.minecraft.world.level.BlockAndTintGetter;
 import net.minecraft.world.level.block.state.BlockState;
 import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
 
 import java.util.Arrays;
 import java.util.Map;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
+//? if < 26.1 {
+import net.minecraft.core.BlockPos;
+import net.minecraft.world.level.BlockAndTintGetter;
+import org.jetbrains.annotations.Nullable;
+//? } else {
+/*import net.minecraft.client.color.block.BlockTintSource;
+
+import java.util.List;
+*///? }
+
 public class ClockFaceStyle {
   public static final DyeColor FACE_NO_DYE = DyeColor.NO_COLOR;
   public static final Plating HANDS_NO_PLATING = Plating.NO_PLATING;
 
-  public static int getColor(BlockState state, /*? if < 26.1 >> '@Nullable BlockPos' */@Nullable BlockAndTintGetter ignoredGetter, @Nullable BlockPos ignoredPos, int tintIdx) {
+  //? >= 26.1 {
+  /*public static final List<BlockTintSource> BLOCK_TINTS = List.of(
+      (state) -> ClockFaceStyle.getColor(state, 0),
+      (state) -> ClockFaceStyle.getColor(state, 1)
+  );
+  *///? }
+
+  public static int getColor(BlockState state, /*? if < 26.1 >> 'int tintIdx' */@Nullable BlockAndTintGetter ignoredGetter, @Nullable BlockPos ignoredPos, int tintIdx) {
     if (state.is(ModBlocks.ANALOG_CLOCK.get()) && tintIdx != 1) return FACE_NO_DYE.getColor();
     if (state.is(ModBlocks.INTERNAL_CLOCK_FACE.get()) && tintIdx != 0) return FACE_NO_DYE.getColor();
 

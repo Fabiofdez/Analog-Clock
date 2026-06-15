@@ -107,7 +107,7 @@ public class PendulumEntity extends BaseBlockEntity {
     }
 
     int nextSwingFrame = calculateNextSwingFrame(pendulum, level, dayTime);
-    if (level.dimension() == Level.OVERWORLD) handleChime(pendulum, level, pos);
+    if (pendulum.canChime(level, pos)) handleBellChime(pendulum, level, pos);
 
     if (!pendulum.differentFrom(nextSwingFrame, nextColorPhase)) return;
 
@@ -120,6 +120,10 @@ public class PendulumEntity extends BaseBlockEntity {
     setChanged(level, pos, state);
 
     ((ServerLevel) level).getChunkSource().blockChanged(pos);
+  }
+
+  public boolean isSwinging() {
+    return SWINGING.get();
   }
 
   public int getSwingFrame() {
@@ -143,31 +147,32 @@ public class PendulumEntity extends BaseBlockEntity {
   }
 
   private static int calculateNextSwingFrame(PendulumEntity pendulum, Level level, long dayTime) {
-    GameRules rules = ((ServerLevel) level).getGameRules();
-    //? if <= 1.21.5
-    boolean doDaylightCycle = rules.getRule(GameRules.RULE_DAYLIGHT).get();
-    //? if >= 1.21.11
-    //boolean doDaylightCycle = rules.get(GameRules.ADVANCE_TIME);
-
-    if (doDaylightCycle) {
-      pendulum.SWINGING.set(true);
-      return toSwingFrame(dayTime - pendulum.SWING_FRAME_OFFSET.get());
-    }
-
-    if (pendulum.SWINGING.get() || !pendulum.settled()) {
-      pendulum.SWING_FRAME_OFFSET.set(-1);
-      return stopSwinging(pendulum);
-    }
+    if (timeRunningIn(level)) return keepSwinging(pendulum, dayTime);
+    if (pendulum.isSwinging() || !pendulum.settled()) return stopSwinging(pendulum);
 
     return pendulum.getSwingFrame();
   }
 
-  private static int stopSwinging(PendulumEntity pendulum) {
-    GravityInterpolator animator = pendulum.SWING_ANIMATOR;
+  private static boolean timeRunningIn(Level level) {
+    GameRules rules = ((ServerLevel) level).getGameRules();
 
-    if (!animator.isInitialized() || !animator.inProgress()) {
-      if (pendulum.SWINGING.get()) animator.interp(pendulum.getSwingFrame());
-    }
+    //? if <= 1.21.5
+    return rules.getRule(GameRules.RULE_DAYLIGHT).get();
+    //? if >= 1.21.11
+    //return rules.get(GameRules.ADVANCE_TIME);
+  }
+
+  private static int keepSwinging(PendulumEntity pendulum, long dayTime) {
+    pendulum.SWINGING.set(true);
+    return toSwingFrame(dayTime - pendulum.SWING_FRAME_OFFSET.get());
+  }
+
+  private static int stopSwinging(PendulumEntity pendulum) {
+    pendulum.SWING_FRAME_OFFSET.set(-1);
+
+    GravityInterpolator animator = pendulum.SWING_ANIMATOR;
+    boolean notAnimating = !animator.isInitialized() || !animator.inProgress();
+    if (notAnimating && pendulum.isSwinging()) animator.interp(pendulum.getSwingFrame());
 
     int nextFrame = animator.step();
     if (!animator.inProgress()) pendulum.SWINGING.set(false);
@@ -239,9 +244,21 @@ public class PendulumEntity extends BaseBlockEntity {
     level.playSound(null, pos, ModSounds.CLOCK_TICK.get(), SoundSource.BLOCKS, 0.8F, pitch);
   }
 
-  private static void handleChime(PendulumEntity pendulum, Level level, BlockPos pos) {
-    if (!pendulum.SWINGING.get()) return;
+  private boolean canChime(Level level, BlockPos pos) {
+    if (level.dimension() != Level.OVERWORLD || !isSwinging()) return false;
 
+    BlockEntity entityAbovePendulum = level.getBlockEntity(pos.above());
+    if (!(entityAbovePendulum instanceof AnalogClockFace clockFace)) return false;
+
+    if (!clockFace.getTimeZone().equals(AnalogClockFace.IN_GAME_ZONE_ID)) return false;
+
+    Direction pendulumFacing = level.getBlockState(pos).getValue(AmethystPendulumBlock.FACING);
+    BlockPos behindPendulum = pos.relative(pendulumFacing.getOpposite());
+    BlockState behindPendulumState = level.getBlockState(behindPendulum);
+    return behindPendulumState.is(Blocks.BELL);
+  }
+
+  private static void handleBellChime(PendulumEntity pendulum, Level level, BlockPos pos) {
     long offsetDayTime = level.getDayTime() - pendulum.SWING_FRAME_OFFSET.get();
     if (offsetDayTime < 0) offsetDayTime += AnalogClockFace.DAY_LENGTH_TICKS;
     offsetDayTime %= AnalogClockFace.DAY_LENGTH_TICKS;

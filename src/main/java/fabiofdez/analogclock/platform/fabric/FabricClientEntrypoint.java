@@ -37,13 +37,11 @@ public class FabricClientEntrypoint implements ClientModInitializer {
 
     renderCutout(ModBlocks.ANALOG_CLOCK.get());
 
-    ColorProviderRegistry.BLOCK.register(
-        //? < 26.1
-        ClockFaceStyle::getColor,
-        //? >= 26.1
-        //List.of((state) -> ClockFaceStyle.getColor(state, null, 0), (state) -> ClockFaceStyle.getColor(state, null, 1)),
-        ModBlocks.ANALOG_CLOCK.get(), ModBlocks.INTERNAL_CLOCK_FACE.get()
-    );
+    Block[] tintedBlocks = new Block[]{ModBlocks.ANALOG_CLOCK.get(), ModBlocks.INTERNAL_CLOCK_FACE.get()};
+    //? < 26.1
+    ColorProviderRegistry.BLOCK.register(ClockFaceStyle::getColor, tintedBlocks);
+    //? >= 26.1
+    //ColorProviderRegistry.BLOCK.register(ClockFaceStyle.BLOCK_TINTS, tintedBlocks);
   }
 
   private static void renderCutout(Block block) {

@@ -1,8 +1,8 @@
 mod.id = "analogclock"
 mod.name = "Analog"
 mod.group = "fabiofdez"
-mod.version = "1.4.1"
-mod.channel_tag = ""
+mod.version = "1.5.0"
+mod.channel_tag = "-alpha.1"
 mod.description = "A new way to tell time"
 mod.authors = ["Fabiofdez"]
 mod.contributors = []
@@ -70,7 +70,6 @@ deps.minecraft = "1.21.11"
 deps.neoforge = "21.11.42"
 deps.parchment = "1.21.11:2025.12.20"
 
-# [neoforge."26.1"]
-# deps.minecraft = "26.1"
-# deps.neoforge = "?"
-# deps.parchment = "?"
+[neoforge."26.1.2"]
+deps.minecraft = "26.1.2"
+deps.neoforge = "26.1.2.76"

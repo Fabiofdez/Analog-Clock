@@ -10,12 +10,12 @@ import fabiofdez.analogclock.client.renderer.AnalogClockFaceRenderer;
 import fabiofdez.analogclock.client.renderer.PendulumRenderer;
 import fabiofdez.analogclock.client.renderer.LongPendulumRenderer;
 import net.minecraft.client.renderer.blockentity.BlockEntityRenderers;
+import net.minecraft.world.level.block.Block;
 import net.neoforged.api.distmarker.Dist;
 import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.fml.common.EventBusSubscriber;
 import net.neoforged.fml.event.lifecycle.FMLClientSetupEvent;
 import net.neoforged.neoforge.client.event.RegisterColorHandlersEvent;
-import net.neoforged.neoforge.event.entity.player.UseItemOnBlockEvent;
 
 @EventBusSubscriber(modid = AnalogClock.MOD_ID, /^? if < 1.21.11 >> 'value' ^/ bus = EventBusSubscriber.Bus.MOD, value = Dist.CLIENT)
 public class NeoforgeClientEventSubscriber {
@@ -33,7 +33,11 @@ public class NeoforgeClientEventSubscriber {
 
   @SubscribeEvent
   public static void registerBlockColorHandlers(RegisterColorHandlersEvent.Block event) {
-    event.register(ClockFaceStyle::getColor, ModBlocks.ANALOG_CLOCK.get(), ModBlocks.INTERNAL_CLOCK_FACE.get());
+    Block[] tintedBlocks = new Block[]{ModBlocks.ANALOG_CLOCK.get(), ModBlocks.INTERNAL_CLOCK_FACE.get()};
+    //? < 26.1
+    event.register(ClockFaceStyle::getColor, tintedBlocks);
+    //? >= 26.1
+    //event.register(ClockFaceStyle.BLOCK_TINTS, tintedBlocks);
   }
 }
 *///?}

@@ -92,6 +92,7 @@ stonecutter parameters {
 			replace("entityCutoutNoCull", "entityCutout")
 			replace("level.getDayTime()", "level.getDefaultClockTime()")
 			replace("PayloadTypeRegistry.playC2S", "PayloadTypeRegistry.serverboundPlay")
+			replace("RegisterColorHandlersEvent.Block", "RegisterColorHandlersEvent.BlockTintSources")
 		}
 
 		string(loader == "neoforge") {

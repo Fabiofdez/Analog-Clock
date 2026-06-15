@@ -69,12 +69,12 @@ public class ModBlockEntities {
   //?} else {
   /*private static <T extends BlockEntity> Supplier<BlockEntityType<T>> register(String name, BlockEntityType.BlockEntitySupplier<T> entityFactory, BlockSupplier block) {
     //? > 1.21.1
-    //Supplier<BlockEntityType<T>> blockEntitySupplier = () -> new BlockEntityType<>(entityFactory, block.get());
+    Supplier<BlockEntityType<T>> blockEntitySupplier = () -> new BlockEntityType<>(entityFactory, block.get());
     //? <= 1.21.1 {
-    Supplier<BlockEntityType<T>> blockEntitySupplier = () -> BlockEntityType.Builder
+    /^Supplier<BlockEntityType<T>> blockEntitySupplier = () -> BlockEntityType.Builder
         .of(entityFactory, block.get())
         .build(null);
-    //? }
+    ^///? }
 
     return BLOCK_ENTITY_TYPES.register(name, blockEntitySupplier);
   }

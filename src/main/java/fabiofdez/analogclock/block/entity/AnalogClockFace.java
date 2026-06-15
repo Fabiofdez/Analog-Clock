@@ -56,7 +56,7 @@ public class AnalogClockFace extends BaseBlockEntity {
   public static void tick(Level level, BlockPos pos, BlockState state, BlockEntity entity) {
     if (level.isClientSide() || !(entity instanceof AnalogClockFace clockFace)) return;
 
-    handleBrushing(clockFace, level, pos, state);
+    if (clockFace.isBeingBrushed()) handleBrushing(clockFace, level, pos, state);
 
     boolean winding = clockFace.HANDS_ANIMATOR.inProgress();
     boolean windingStopped = clockFace.isManuallyWinding() && !winding;
@@ -77,6 +77,10 @@ public class AnalogClockFace extends BaseBlockEntity {
     setChanged(level, pos, state);
 
     ((ServerLevel) level).getChunkSource().blockChanged(pos);
+  }
+
+  public boolean isBeingBrushed() {
+    return brushingPlayerUUID != null;
   }
 
   public boolean isManuallyWinding() {
@@ -192,8 +196,6 @@ public class AnalogClockFace extends BaseBlockEntity {
   }
 
   private static void handleBrushing(AnalogClockFace clockFace, Level level, BlockPos pos, BlockState state) {
-    if (clockFace.brushingPlayerUUID == null) return;
-
     Player player = level.getPlayerByUUID(UUID.fromString(clockFace.brushingPlayerUUID));
     if (player == null) return;
 
