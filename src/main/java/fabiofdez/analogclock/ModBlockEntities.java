@@ -56,6 +56,9 @@ public class ModBlockEntities {
       ModBlocks.LONG_AMETHYST_PENDULUM
   );
 
+  public static void initialize() {
+  }
+
   //? if fabric {
   private static <T extends BlockEntity> Supplier<BlockEntityType<T>> register(String name, FabricBlockEntityTypeBuilder.Factory<? extends T> entityFactory, Supplier<Block> block) {
     BlockEntityType<T> blockEntity = Registry.register(

@@ -65,3 +65,9 @@ dependencies {
 	implementation("net.fabricmc.fabric-api:fabric-api:${prop("deps.fabric-api")}")
 //	localRuntime("com.terraformersmc:modmenu:${prop("deps.modmenu")}")
 }
+
+java {
+	toolchain {
+		languageVersion.set(JavaLanguageVersion.of(25))
+	}
+}

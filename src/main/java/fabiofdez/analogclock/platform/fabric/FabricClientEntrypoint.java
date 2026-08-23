@@ -41,7 +41,7 @@ public class FabricClientEntrypoint implements ClientModInitializer {
     //? < 26.1
     ColorProviderRegistry.BLOCK.register(ClockFaceStyle::getColor, tintedBlocks);
     //? >= 26.1
-    //ColorProviderRegistry.BLOCK.register(ClockFaceStyle.BLOCK_TINTS, tintedBlocks);
+    //ColorProviderRegistry.BLOCK.register(ClockFaceStyle.getTints(), tintedBlocks);
   }
 
   private static void renderCutout(Block block) {

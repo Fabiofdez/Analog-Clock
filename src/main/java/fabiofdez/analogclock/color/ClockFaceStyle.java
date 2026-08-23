@@ -29,19 +29,21 @@ public class ClockFaceStyle {
   public static final DyeColor FACE_NO_DYE = DyeColor.NO_COLOR;
   public static final Plating HANDS_NO_PLATING = Plating.NO_PLATING;
 
-  //? >= 26.1 {
-  /*public static final List<BlockTintSource> BLOCK_TINTS = List.of(
-      (state) -> ClockFaceStyle.getColor(state, 0),
-      (state) -> ClockFaceStyle.getColor(state, 1)
-  );
-  *///? }
-
   public static int getColor(BlockState state, /*? if < 26.1 >> 'int tintIdx' */@Nullable BlockAndTintGetter ignoredGetter, @Nullable BlockPos ignoredPos, int tintIdx) {
     if (state.is(ModBlocks.ANALOG_CLOCK.get()) && tintIdx != 1) return FACE_NO_DYE.getColor();
     if (state.is(ModBlocks.INTERNAL_CLOCK_FACE.get()) && tintIdx != 0) return FACE_NO_DYE.getColor();
 
     return state.getValue(AnalogClockBlock.FACE_TINT).getColor();
   }
+
+  //? >= 26.1 {
+  /*public static List<BlockTintSource> getTints() {
+    return List.of(
+        (state) -> ClockFaceStyle.getColor(state, 0),
+        (state) -> ClockFaceStyle.getColor(state, 1)
+    );
+  }
+  *///? }
 
   private static String toProperCase(String str) {
     return Arrays

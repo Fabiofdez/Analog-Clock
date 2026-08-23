@@ -37,7 +37,7 @@ public class NeoforgeClientEventSubscriber {
     //? < 26.1
     event.register(ClockFaceStyle::getColor, tintedBlocks);
     //? >= 26.1
-    //event.register(ClockFaceStyle.BLOCK_TINTS, tintedBlocks);
+    //event.register(ClockFaceStyle.getTints(), tintedBlocks);
   }
 }
 *///?}

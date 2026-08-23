@@ -66,3 +66,23 @@ dependencies {
 tasks.named("createMinecraftArtifacts") {
 	dependsOn(tasks.named("stonecutterGenerate"))
 }
+
+java {
+	toolchain {
+		val currentMcVersion: String by lazy {
+			sc.current.version
+		}
+
+		languageVersion.set(
+			JavaLanguageVersion.of(
+				when {
+					stonecutter.eval(currentMcVersion, ">=26") -> 25
+					stonecutter.eval(currentMcVersion, ">=1.20.6") -> 21
+					stonecutter.eval(currentMcVersion, ">=1.18") -> 17
+					stonecutter.eval(currentMcVersion, ">=1.17") -> 16
+					else -> 8
+				}
+			)
+		)
+	}
+}

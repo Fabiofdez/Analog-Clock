@@ -2,6 +2,7 @@ package fabiofdez.analogclock.platform.fabric;
 
 //? fabric {
 
+import fabiofdez.analogclock.ModBlockEntities;
 import fabiofdez.analogclock.ModBlocks;
 import fabiofdez.analogclock.ModItems;
 import fabiofdez.analogclock.ModSounds;
@@ -19,6 +20,7 @@ public class FabricEntrypoint implements ModInitializer {
     ModSounds.initialize();
     ModBlocks.initialize();
     ModItems.initialize();
+    ModBlockEntities.initialize();
 
     FabricEventSubscriber.registerEvents();
   }
